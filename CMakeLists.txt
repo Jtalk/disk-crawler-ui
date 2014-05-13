@@ -19,9 +19,10 @@ include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 
 set(crawler-qt_SRCS 
 	crawler-qt.cpp 
+	devpick.cpp
 	main.cpp
 )
 qt4_automoc(${crawler-qt_SRCS})
 add_executable(crawler-qt ${crawler-qt_SRCS})
-target_link_libraries(crawler-qt ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+target_link_libraries(crawler-qt ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} blkid)
 install(TARGETS crawler-qt RUNTIME DESTINATION bin)

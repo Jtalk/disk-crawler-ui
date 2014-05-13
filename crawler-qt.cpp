@@ -18,7 +18,10 @@
 
 #include "crawler-qt.h"
 
+#include "devpick.h"
+
 #include <QtGui/QLabel>
+#include <QtGui/QListWidget>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QAction>
@@ -52,6 +55,15 @@ void crawler_qt::makeMain() {
 	auto layout = new QVBoxLayout(mainWidget);
 	mainWidget->setLayout(layout);
 	this->setCentralWidget(mainWidget);
+	
+	auto devicesList = new QListWidget(mainWidget);
+	auto list = devpick();
+	for (auto &device : list) {
+		QString content = QLatin1String(device.name.c_str()) + ", size: " + QString::number(device.size) + " B";
+		auto current = new QListWidgetItem(content, devicesList);
+		devicesList->addItem(current);
+	}
+	layout->addItem(new QWidgetItem(devicesList));
 }
 
 
