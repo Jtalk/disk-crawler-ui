@@ -22,6 +22,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QAction>
+#include <QtGui/QVBoxLayout>
 
 crawler_qt::crawler_qt() {
 	this->makeActions();
@@ -47,9 +48,10 @@ void crawler_qt::makeMenu() {
 }
 
 void crawler_qt::makeMain() {
-	QLabel *l = new QLabel(this);
-	l->setText("Hello World!");
-	setCentralWidget(l);
+	auto mainWidget = new QWidget(this);
+	auto layout = new QVBoxLayout(mainWidget);
+	mainWidget->setLayout(layout);
+	this->setCentralWidget(mainWidget);
 }
 
 
