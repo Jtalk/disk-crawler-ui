@@ -29,6 +29,7 @@ class QProgressBar;
 
 class CrawlerThread;
 class NotificationWidget;
+class ResultsWindow;
 
 class crawler_qt : public QMainWindow {
 	Q_OBJECT
@@ -46,11 +47,14 @@ private:
 	QProgressBar *m_progressbar;
 	NotificationWidget *m_notificationWidget;
 	
+	ResultsWindow *m_resultsWindow;
+	
 	CrawlerThread *m_thread;
 	
 	void makeActions();
 	void makeMenu();
 	void makeMain();
+	void makeResultsWindow();
 	void place();
 	
 	void showResult();

@@ -21,6 +21,7 @@
 #include "CrawlerThread.h"
 #include "DiskListWidgetItem.h"
 #include "NotificationWidget.h"
+#include "ResultsWindow.h"
 
 #include "devpick.h"
 
@@ -51,11 +52,13 @@ crawler_qt::crawler_qt(): m_thread(nullptr) {
 	this->makeActions();
 	this->makeMenu();
 	this->makeMain();
+	this->makeResultsWindow();
 }
 
 crawler_qt::~crawler_qt()
 {
 	delete this->m_thread;
+	delete this->m_resultsWindow;
 }
 
 void crawler_qt::place() {
@@ -130,16 +133,22 @@ void crawler_qt::makeMain() {
 	this->m_thread = new CrawlerThread(this);
 	connect(this->m_thread, SIGNAL(progress(int)), this->m_progressbar, SLOT(setValue(int)));
 	connect(this->m_thread, SIGNAL(error(QString)), SLOT(onThreadError(QString)));
+	connect(this->m_thread, SIGNAL(endsearch()), SLOT(onEndSearch()));
 	
 	layout->addWidget(this->m_progressbar);
 }
 
+void crawler_qt::makeResultsWindow() {
+	this->m_resultsWindow = new ResultsWindow();
+	this->m_resultsWindow->hide();
+	auto geom = this->geometry();
+	this->m_resultsWindow->setGeometry(geom);
+}
+
 void crawler_qt::showResult() {
-	if (this->m_thread->found().empty()) {
-		this->inform("Nothing found");
-	} else {
-		this->inform(QString("Found %1 items").arg(this->m_thread->found().size()));
-	}
+	this->m_resultsWindow->setResults(std::move(this->m_thread->found()));
+	this->m_resultsWindow->setWindowTitle(this->m_thread->device().name.c_str());
+	this->m_resultsWindow->show();
 }
 
 void crawler_qt::inform(const QString &message) {

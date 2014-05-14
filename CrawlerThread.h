@@ -32,6 +32,7 @@ public:
 	
 	void addDevice(const DeviceInfo &info);
 	SignatureWalker::results_t &found();
+	const DeviceInfo &device() const;
 	
 signals:
 	void progress(int percent);
@@ -41,8 +42,8 @@ signals:
 private:
 	SignatureWalker::results_t m_results;
 	
-	DeviceInfo device;
-	bool initialized;
+	DeviceInfo m_device;
+	bool m_initialized;
 	
 	void run() override;
 	

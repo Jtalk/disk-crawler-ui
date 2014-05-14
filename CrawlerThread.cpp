@@ -26,23 +26,27 @@
 using std::bind;
 using namespace std::placeholders;
 
-CrawlerThread::CrawlerThread(QObject *parent): QThread(parent), initialized(false)
+CrawlerThread::CrawlerThread(QObject *parent): QThread(parent), m_initialized(false)
 {}
 
 CrawlerThread::~CrawlerThread() 
 {}
 
 void CrawlerThread::addDevice(const DeviceInfo &info) {
-	this->device = info;
-	this->initialized = true;
+	this->m_device = info;
+	this->m_initialized = true;
 }
 
 SignatureWalker::results_t &CrawlerThread::found() {
 	return this->m_results;
 }
 
+const DeviceInfo &CrawlerThread::device() const {
+	return this->m_device;
+}
+
 void CrawlerThread::run() {
-	if (not this->initialized) {
+	if (not this->m_initialized) {
 		emit error(tr("Running uninitialized thread, try again"));
 		return;
 	}
@@ -60,7 +64,7 @@ void CrawlerThread::progressCallback(int percent) {
 }
 
 void CrawlerThread::find() {
-	auto plain = new PlainWalker(this->device.name, this->device.size, bind(&CrawlerThread::progressCallback, this, _1));
+	auto plain = new PlainWalker(this->m_device.name, this->m_device.size, bind(&CrawlerThread::progressCallback, this, _1));
 	if (not *plain) {
 		delete plain;
 		emit error(tr("Access Denied"));

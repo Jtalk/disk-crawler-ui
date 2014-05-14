@@ -25,6 +25,8 @@ set(crawler-qt_SRCS
 	CrawlerThread.cpp
 	DiskListWidgetItem.cpp
 	NotificationWidget.cpp
+	ResultsWindow.cpp
+	HexWidget.cpp
 )
 qt4_automoc(${crawler-qt_SRCS})
 add_executable(crawler-qt ${crawler-qt_SRCS})
