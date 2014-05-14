@@ -96,6 +96,7 @@ void CrawlerThread::find() {
 		++this->completeWalkersCount;
 	}
 	
+	emit progress(100);
 	emit endsearch();
 }
 
