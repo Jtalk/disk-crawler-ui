@@ -20,8 +20,8 @@
 
 #include <QtGui/QListWidget>
 
-SearchResultItem::SearchResultItem(QListWidget *view, const QString &searchPattern, const byte_array_t &raw, size_t offset): 
-	QListWidgetItem(searchPattern + " at 0x" + QString::number(offset, 16), view), array(raw), offset(offset)
+SearchResultItem::SearchResultItem(QListWidget *view, const QString &searchPattern, Buffer &&raw, size_t offset): 
+	QListWidgetItem(searchPattern + " at 0x" + QString::number(offset, 16), view), array(std::move(raw)), offset(offset)
 {}
 
 #include "SearchResultItem.moc"

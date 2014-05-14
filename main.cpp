@@ -18,11 +18,14 @@
 
 #include "crawler-qt.h"
 
+#include "base/Log.h"
+
 #include <QtGui/QApplication>
 
 int main(int argc, char **argv) {
 	QApplication app(argc, argv);
 	crawler_qt foo;
+	Log logger;
 	foo.show();
 	return app.exec();
 }

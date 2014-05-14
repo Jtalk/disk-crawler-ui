@@ -19,6 +19,7 @@
 #include "ResultsWindow.h"
 
 #include "HexWidget.h"
+#include "SearchResultItem.h"
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QListWidget>
@@ -26,24 +27,26 @@
 
 #include <utility>
 
+static const uint8_t VIEW_SIZE = 26;
+
 ResultsWindow::ResultsWindow(): QWidget()
 {
 	this->makeMain();
 }
 
 void ResultsWindow::view(QListWidgetItem *item) {
-	QListWidgetItem *current;
+	SearchResultItem *current;
 	if (item == nullptr) {
 		auto selected = this->m_list->selectedItems();
 		if (selected.empty()) {
 			return;
 		} 
-		current = selected.front();
+		current = (SearchResultItem*)selected.front();
 	} else {
-		current = item;
+		current = (SearchResultItem*)item;
 	}
 	
-	// this->m_hex->setText();
+	this->m_hex->setText(current->array, current->offset);
 }
 
 void ResultsWindow::setResults(SignatureWalker::results_t && new_results) {
@@ -92,7 +95,23 @@ void ResultsWindow::clear() {
 }
 
 void ResultsWindow::formList() {
-
+	for (const auto &result : this->m_results) {
+		ByteReader *reader = result.first;
+		reader->reset();
+		for (const auto &offset : result.second) {
+			size_t to_read = VIEW_SIZE * 3;
+			Buffer result(to_read);
+			size_t startp = 0;
+			if (offset > to_read / 2) {
+				startp = offset - to_read / 2;
+			}
+			reader->seekg(startp);
+			auto read = reader->read(result, to_read);
+			result.shrink(read);
+			auto item = new SearchResultItem(this->m_list, "Pattern", std::move(result), offset);
+			this->m_list->addItem(item);
+		}
+	}
 }
 
 #include "ResultsWindow.moc"

@@ -20,18 +20,18 @@
 
 #include <cmath>
 
-QString format(const byte_array_t &text, size_t startOffset) {
+QString format(const Buffer &text, size_t startOffset) {
 	static constexpr uint8_t ITEMS_PER_ROW = 16;
 	static const char *PLACEHOLDER_HEX = "  ";
 	static const char *PLACEHOLDER_VIEW = " ";
-	const uint8_t ADDRESS_SIZE = (text.length() + startOffset) / 0x10 + 2;
+	const uint8_t ADDRESS_SIZE = 20;
 	
 	QStringList addresses;
 	QStringList hexes;
 	QStringList visuals;
 	
 	size_t startAddress = ITEMS_PER_ROW * (startOffset / ITEMS_PER_ROW);
-	size_t lastAddress = ITEMS_PER_ROW * ceil(float(startOffset + text.length()) / ITEMS_PER_ROW);
+	size_t lastAddress = ITEMS_PER_ROW * ceil(float(startOffset + text.size()) / ITEMS_PER_ROW);
 	
 	for (size_t addr = startAddress; addr <= lastAddress; addr++) {
 		QString straddr = "0x" + QString::number(addr, 16).rightJustified(ADDRESS_SIZE, '0');
@@ -42,13 +42,14 @@ QString format(const byte_array_t &text, size_t startOffset) {
 		for (size_t charidx = addr; charidx < addr + ITEMS_PER_ROW; charidx++) {
 			QString item_hex;
 			QString item_view;
-			if (charidx < startOffset or charidx >= startOffset + text.length()) {
+			if (charidx < startOffset or charidx >= startOffset + text.size()) {
 				item_hex = PLACEHOLDER_HEX;
 				item_view = PLACEHOLDER_VIEW;
 			} else {
 				size_t offset = charidx - startOffset;
-				item_hex = QString::number(text[offset], 16);
-				QChar value(text[offset]);
+				logger()->debug("Offset is %u, char id is %u, start offset is %u, size is %u", offset, charidx, startOffset, text.size());
+				item_hex = QString::number(text.cbegin()[offset], 16);
+				QChar value(text.cbegin()[offset]);
 				if (not value.isDigit() and not value.isLetter() and value != ' ') {
 					value = '.';
 				}
@@ -86,7 +87,7 @@ HexWidget::HexWidget(QWidget *parent): QTextEdit(parent)
 	this->setFont(font);
 }
 
-void HexWidget::setText(const byte_array_t &text, size_t startOffset) {
+void HexWidget::setText(const Buffer &text, size_t startOffset) {
 	QString formatted = format(text, startOffset);
 	this->QTextEdit::setText(formatted);
 }

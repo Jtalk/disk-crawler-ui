@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "base/types.h"
+#include "base/Buffer.h"
 
 #include <QtGui/QTextEdit>
 
@@ -28,7 +28,7 @@ class HexWidget : public QTextEdit {
 public:
 	HexWidget(QWidget *parent);
 	
-	void setText(const byte_array_t &text, size_t startOffset);
+	void setText(const Buffer &text, size_t startOffset);
 
 private:
 };

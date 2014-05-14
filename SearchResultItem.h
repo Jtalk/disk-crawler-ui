@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "base/types.h"
+#include "base/Buffer.h"
 
 #include <QtGui/QListWidgetItem>
 
@@ -26,8 +26,8 @@ class QListWidget;
 
 class SearchResultItem : public QListWidgetItem {
 public:
-	const byte_array_t &array;
+	const Buffer array;
 	const size_t offset;
 	
-	SearchResultItem(QListWidget *view, const QString &searchPattern, const byte_array_t &raw, size_t offset);
+	SearchResultItem(QListWidget *view, const QString &searchPattern, Buffer &&raw, size_t offset);
 };
