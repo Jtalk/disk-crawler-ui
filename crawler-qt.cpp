@@ -19,6 +19,7 @@
 #include "crawler-qt.h"
 
 #include "DiskListWidgetItem.h"
+#include "NotificationWidget.h"
 
 #include "devpick.h"
 
@@ -62,6 +63,7 @@ void crawler_qt::makeActions() {
 	this->m_actions.fill(nullptr);
 	
 	this->m_actions[QUIT] = new QAction(tr("Quit"), this);
+	this->m_actions[QUIT]->setShortcut(QString("Ctrl+Q"));
 	connect(this->m_actions[QUIT], SIGNAL(triggered()), SLOT(close()));
 	
 	this->m_actions[ANALYZE] = new QAction(tr("Analyze"), this);
@@ -80,6 +82,9 @@ void crawler_qt::makeMain() {
 	auto layout = new QVBoxLayout(mainWidget);
 	mainWidget->setLayout(layout);
 	this->setCentralWidget(mainWidget);
+	
+	this->m_notificationWidget = new NotificationWidget(mainWidget);
+	layout->addWidget(this->m_notificationWidget);
 	
 	auto upperLayout = new QHBoxLayout(mainWidget);
 	
@@ -104,8 +109,7 @@ void crawler_qt::makeMain() {
 }
 
 void crawler_qt::inform(const QString &message) {
-	QMessageBox box(QMessageBox::Warning, "Warning", message,  QMessageBox::Ok);
-	box.exec();
+	this->m_notificationWidget->notify(message);
 }
 
 void crawler_qt::analyze(QListWidgetItem *chosen) {

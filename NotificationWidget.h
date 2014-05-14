@@ -18,42 +18,28 @@
 
 #pragma once
 
-#include <QtGui/QMainWindow>
+#include <QtGui/QWidget>
 
-#include <array>
+class QLabel;
+class QToolButton;
 
-class QListWidget;
-class QListWidgetItem;
-class QAction;
-
-class NotificationWidget;
-
-class crawler_qt : public QMainWindow {
+class NotificationWidget : public QWidget {
 	Q_OBJECT
 	
-private:
-	enum ActionType {
-		QUIT = 0,
-		ANALYZE,
-		
-		MAX_ACTION
-	};
-	
-	std::array<QAction*, MAX_ACTION> m_actions;
-	QListWidget *m_devicesList;
-	NotificationWidget *m_notificationWidget;
-	
-	void makeActions();
-	void makeMenu();
-	void makeMain();
-	void place();
-	
-	void inform(const QString &message);
-	
-public slots:
-	void analyze(QListWidgetItem *chosen = nullptr);
-	
 public:
-	crawler_qt();
-	virtual ~crawler_qt();
+	NotificationWidget(QWidget *parent);
+	
+	void notify(const QString &text);
+	
+private slots:
+	void hide();
+	void show();
+	
+private:
+	QToolButton *m_hideButton;
+	QLabel *m_label;
+	QPalette m_palette;
+	QPalette m_defaultPalette;
+	
+	void paintColour();
 };
