@@ -22,12 +22,28 @@
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QListWidget>
+#include <QtGui/QPushButton>
 
 #include <utility>
 
 ResultsWindow::ResultsWindow(): QWidget()
 {
 	this->makeMain();
+}
+
+void ResultsWindow::view(QListWidgetItem *item) {
+	QListWidgetItem *current;
+	if (item == nullptr) {
+		auto selected = this->m_list->selectedItems();
+		if (selected.empty()) {
+			return;
+		} 
+		current = selected.front();
+	} else {
+		current = item;
+	}
+	
+	// this->m_hex->setText();
 }
 
 void ResultsWindow::setResults(SignatureWalker::results_t && new_results) {
@@ -49,10 +65,22 @@ void ResultsWindow::makeMain() {
 	auto layout = new QVBoxLayout(this);
 	this->setLayout(layout);
 	
-	this->m_list = new QListWidget(this);
 	this->m_hex = new HexWidget(this);
 	
-	layout->addWidget(this->m_list, 6);
+	auto upperLayout = new QHBoxLayout(this);
+	
+	this->m_list = new QListWidget(this);
+	connect(this->m_list, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(view(QListWidgetItem*)));
+	upperLayout->addWidget(this->m_list);
+	
+	auto buttonsLayout = new QVBoxLayout(this);
+	auto viewButton = new QPushButton(tr("Show"), this);
+	connect(viewButton, SIGNAL(clicked(bool)), SLOT(view()));
+	buttonsLayout->addWidget(viewButton, 0, Qt::AlignTop);
+	upperLayout->addItem(buttonsLayout);
+	//upperLayout->setStretchFactor(6);
+	
+	layout->addItem(upperLayout);
 	layout->addWidget(this->m_hex, 4);
 }
 

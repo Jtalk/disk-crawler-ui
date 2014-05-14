@@ -18,6 +18,66 @@
 
 #include "HexWidget.h"
 
+#include <cmath>
+
+QString format(const byte_array_t &text, size_t startOffset) {
+	static constexpr uint8_t ITEMS_PER_ROW = 16;
+	static const char *PLACEHOLDER_HEX = "  ";
+	static const char *PLACEHOLDER_VIEW = " ";
+	const uint8_t ADDRESS_SIZE = (text.length() + startOffset) / 0x10 + 2;
+	
+	QStringList addresses;
+	QStringList hexes;
+	QStringList visuals;
+	
+	size_t startAddress = ITEMS_PER_ROW * (startOffset / ITEMS_PER_ROW);
+	size_t lastAddress = ITEMS_PER_ROW * ceil(float(startOffset + text.length()) / ITEMS_PER_ROW);
+	
+	for (size_t addr = startAddress; addr <= lastAddress; addr++) {
+		QString straddr = "0x" + QString::number(addr, 16).rightJustified(ADDRESS_SIZE, '0');
+		addresses << straddr;
+		
+		QString hex;
+		QString visual;
+		for (size_t charidx = addr; charidx < addr + ITEMS_PER_ROW; charidx++) {
+			QString item_hex;
+			QString item_view;
+			if (charidx < startOffset or charidx >= startOffset + text.length()) {
+				item_hex = PLACEHOLDER_HEX;
+				item_view = PLACEHOLDER_VIEW;
+			} else {
+				size_t offset = charidx - startOffset;
+				item_hex = QString::number(text[offset], 16);
+				QChar value(text[offset]);
+				if (not value.isDigit() and not value.isLetter() and value != ' ') {
+					value = '.';
+				}
+				item_view = value;
+			}
+			if (not hex.isEmpty()) {
+				hex += QLatin1String(" ");
+			}
+			hex += item_hex;
+			visual += item_view;
+		}
+		hexes << hex;
+		visuals << visual;		
+	}
+	
+	QString result;
+	auto addri = addresses.constBegin();
+	auto hexi = hexes.constBegin();
+	auto visuali = visuals.constBegin();
+	for (; addri != addresses.constEnd() and hexi != hexes.constEnd() and visuali != visuals.constEnd(); addri++, hexi++, visuali++) {
+		if (not result.isEmpty()) {
+			result += "\n";
+		}
+		result += (*addri + " | " + *hexi + " | " + *visuali);
+	}
+	
+	return result;
+}
+
 HexWidget::HexWidget(QWidget *parent): QTextEdit(parent) 
 {
 	this->setReadOnly(true);
@@ -27,8 +87,8 @@ HexWidget::HexWidget(QWidget *parent): QTextEdit(parent)
 }
 
 void HexWidget::setText(const byte_array_t &text, size_t startOffset) {
-	Q_UNUSED(text);
-	Q_UNUSED(startOffset);
+	QString formatted = format(text, startOffset);
+	this->QTextEdit::setText(formatted);
 }
 
 #include "HexWidget.moc"

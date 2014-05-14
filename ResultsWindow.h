@@ -23,6 +23,7 @@
 #include <QtGui/QWidget>
 
 class QListWidget;
+class QListWidgetItem;
 
 class HexWidget;
 
@@ -35,6 +36,9 @@ public:
 	void setResults(SignatureWalker::results_t &&new_results);
 	void show();
 	void hide();
+	
+public slots:
+	void view(QListWidgetItem *item = nullptr);
 	
 private:
 	QListWidget *m_list;
