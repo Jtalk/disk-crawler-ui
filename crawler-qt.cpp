@@ -22,14 +22,19 @@
 
 #include "devpick.h"
 
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
+#include <QtGui/QToolButton>
 #include <QtGui/QLabel>
 #include <QtGui/QListWidget>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
+#include <QtGui/QMessageBox>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
 
 crawler_qt::crawler_qt() {
+	this->place();
 	this->makeActions();
 	this->makeMenu();
 	this->makeMain();
@@ -38,17 +43,35 @@ crawler_qt::crawler_qt() {
 crawler_qt::~crawler_qt()
 {}
 
+void crawler_qt::place() {
+	auto size = this->size();
+	size.setHeight(size.height() * 1.4);
+	size.setWidth(size.width() * 1.4);
+	this->resize(size);
+	QDesktopWidget *d = QApplication::desktop();
+	int ws = d->width();   // returns screen width
+	int h = d->height();  // returns screen height
+	int mw = size.width();
+	int mh = size.height();
+	int cw = (ws/2) - (mw/2);
+	int ch = (h/2) - (mh/2);
+	this->move(cw,ch);
+}
+
 void crawler_qt::makeActions() {
 	this->m_actions.fill(nullptr);
 	
-	this->m_actions[ACTION_QUIT] = new QAction(tr("Quit"), this);
-	connect(this->m_actions[ACTION_QUIT], SIGNAL(triggered()), SLOT(close()));
+	this->m_actions[QUIT] = new QAction(tr("Quit"), this);
+	connect(this->m_actions[QUIT], SIGNAL(triggered()), SLOT(close()));
+	
+	this->m_actions[ANALYZE] = new QAction(tr("Analyze"), this);
+	connect(this->m_actions[ANALYZE], SIGNAL(triggered()), SLOT(analyze()));
 }
 
 void crawler_qt::makeMenu() {
 	auto menubar = this->menuBar();
 	auto file = new QMenu(tr("&File"), menubar);
-	file->addAction(this->m_actions[ACTION_QUIT]);
+	file->addAction(this->m_actions[QUIT]);
 	menubar->addMenu(file);
 }
 
@@ -58,18 +81,47 @@ void crawler_qt::makeMain() {
 	mainWidget->setLayout(layout);
 	this->setCentralWidget(mainWidget);
 	
-	auto devicesList = new QListWidget(mainWidget);
+	auto upperLayout = new QHBoxLayout(mainWidget);
+	
+	this->m_devicesList = new QListWidget(mainWidget);
 	auto list = devpick();
 	for (auto &device : list) {
 		QLatin1String device_name = QLatin1String(device.name.c_str());
 		QString content = device_name + ", size: " + QString::number(device.size) + " B";
-		auto current = new DiskListWidgetItem(content, devicesList, device_name);
-		devicesList->addItem(current);
+		auto current = new DiskListWidgetItem(content, this->m_devicesList, device_name);
+		this->m_devicesList->addItem(current);
 	}
-	layout->addItem(new QWidgetItem(devicesList));
+	connect(this->m_devicesList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(analyze(QListWidgetItem*)));
+	upperLayout->addItem(new QWidgetItem(this->m_devicesList));
+	
+	auto buttonsLayout = new QVBoxLayout(mainWidget);
+	auto analyzeButton = new QToolButton(mainWidget);
+	analyzeButton->setDefaultAction(this->m_actions[ANALYZE]);
+	buttonsLayout->addWidget(analyzeButton, 0, Qt::AlignTop);
+	upperLayout->addItem(buttonsLayout);
+	
+	layout->addItem(upperLayout);
 }
 
+void crawler_qt::inform(const QString &message) {
+	QMessageBox box(QMessageBox::Warning, "Warning", message,  QMessageBox::Ok);
+	box.exec();
+}
 
+void crawler_qt::analyze(QListWidgetItem *chosen) {
+	DiskListWidgetItem *diskSelected;
+	if (chosen == nullptr) {
+		auto selected = this->m_devicesList->selectedItems();
+		if (selected.empty()) {
+			this->inform(tr("No device selected"));
+			return;
+		} 
+		diskSelected = (DiskListWidgetItem*)selected.front();
+	} else {
+		diskSelected = (DiskListWidgetItem*)chosen;
+	}
+	this->inform(QString("Device %s is selected").arg(diskSelected->device_name));	
+}
 
 #include "crawler-qt.moc"
 

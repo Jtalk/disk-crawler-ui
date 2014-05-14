@@ -22,21 +22,33 @@
 
 #include <array>
 
+class QListWidget;
+class QListWidgetItem;
+class QAction;
+
 class crawler_qt : public QMainWindow {
 	Q_OBJECT
 	
 private:
 	enum ActionType {
-		ACTION_QUIT = 0,
+		QUIT = 0,
+		ANALYZE,
 		
 		MAX_ACTION
 	};
 	
 	std::array<QAction*, MAX_ACTION> m_actions;
+	QListWidget *m_devicesList;
 	
 	void makeActions();
 	void makeMenu();
 	void makeMain();
+	void place();
+	
+	void inform(const QString &message);
+	
+public slots:
+	void analyze(QListWidgetItem *chosen = nullptr);
 	
 public:
 	crawler_qt();
