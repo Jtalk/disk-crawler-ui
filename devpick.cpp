@@ -48,9 +48,8 @@ info_list_t devpick() {
 	while (blkid_dev_next(iterator, &device) == 0) {
 		DeviceInfo info;
 		auto name = blkid_dev_devname(device);
-		if (not get_size(name, info.size)) {
-			continue;
-		}
+		info.size = 0;
+		get_size(name, info.size);
 		info.name = name;
 		result.push_back(info);
 	}
