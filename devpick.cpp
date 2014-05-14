@@ -18,8 +18,26 @@
 
 #include "devpick.h"
 
+#include <unistd.h>
+
+#include <sys/fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <blkid/blkid.h>
+#include <linux/fs.h>
 #include <iostream>
+bool get_size(const char *name, size_t &bytes) {
+	int fd = open(name, O_RDONLY);
+	bool success = ioctl(fd, BLKGETSIZE64 &bytes) >= 0;
+	if (!success) {
+		std::cout << name << " " << errno << std::endl;
+	}
+	close(fd);
+	return success;
+}
+
 info_list_t devpick() {
 	info_list_t result;
 	blkid_cache cache;
@@ -29,8 +47,11 @@ info_list_t devpick() {
 	blkid_dev device;
 	while (blkid_dev_next(iterator, &device) == 0) {
 		DeviceInfo info;
-		info.name = blkid_dev_devname(device);
-		info.size = 0;
+		auto name = blkid_dev_devname(device);
+		if (not get_size(name, info.size)) {
+			continue;
+		}
+		info.name = name;
 		result.push_back(info);
 	}
 	blkid_dev_iterate_end(iterator);
