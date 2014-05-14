@@ -57,6 +57,7 @@ crawler_qt::crawler_qt(): m_thread(nullptr) {
 
 crawler_qt::~crawler_qt()
 {
+	this->m_thread->wait();
 	delete this->m_thread;
 	delete this->m_resultsWindow;
 }
