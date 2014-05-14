@@ -27,15 +27,23 @@
 
 #include <blkid/blkid.h>
 #include <linux/fs.h>
-#include <iostream>
-bool get_size(const char *name, size_t &bytes) {
+
+#include <cstring>
+
+size_t get_size(const char *name) {
+	size_t bytes = 0;
 	int fd = open(name, O_RDONLY);
-	bool success = ioctl(fd, BLKGETSIZE64 &bytes) >= 0;
-	if (!success) {
-		std::cout << name << " " << errno << std::endl;
-	}
+	ioctl(fd, BLKGETSIZE64, &bytes);
 	close(fd);
-	return success;
+	return bytes;
+}
+
+std::string get_fs(const std::string &device_name) {
+	const char *name = nullptr;
+	auto probe = blkid_new_probe_from_filename(device_name.c_str());
+	blkid_do_probe(probe);
+	blkid_probe_lookup_value(probe, "TYPE", &name, nullptr);
+	return name ? name : "unknown";
 }
 
 info_list_t devpick() {
@@ -45,12 +53,14 @@ info_list_t devpick() {
 	blkid_probe_all(cache);
 	auto iterator = blkid_dev_iterate_begin(cache);
 	blkid_dev device;
+	
 	while (blkid_dev_next(iterator, &device) == 0) {
 		DeviceInfo info;
 		auto name = blkid_dev_devname(device);
-		info.size = 0;
-		get_size(name, info.size);
+		
+		info.size = get_size(name);
 		info.name = name;
+		info.file_system = get_fs(name);
 		result.push_back(info);
 	}
 	blkid_dev_iterate_end(iterator);

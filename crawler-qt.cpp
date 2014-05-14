@@ -34,6 +34,16 @@
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
 
+static QString humanReadable(size_t size) {
+	int i = 0;
+	const char* units[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+	while (size > 1024) {
+		size /= 1024;
+		i++;
+	}
+	return QString::number(size) + " " + units[i];
+}
+
 crawler_qt::crawler_qt() {
 	this->place();
 	this->makeActions();
@@ -92,7 +102,7 @@ void crawler_qt::makeMain() {
 	auto list = devpick();
 	for (auto &device : list) {
 		QLatin1String device_name = QLatin1String(device.name.c_str());
-		QString content = device_name + ", size: " + QString::number(device.size) + " B";
+		QString content = device_name + ", size: " + humanReadable(device.size) + ", " + QLatin1String(device.file_system.c_str());
 		auto current = new DiskListWidgetItem(content, this->m_devicesList, device_name);
 		this->m_devicesList->addItem(current);
 	}

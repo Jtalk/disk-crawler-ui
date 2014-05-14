@@ -23,6 +23,7 @@
 
 struct DeviceInfo {
 	std::string name;
+	std::string file_system;
 	size_t size;
 };
 
