@@ -16,7 +16,7 @@ set (CMAKE_NM      "/usr/bin/llvm-nm")
 set (CMAKE_OBJDUMP "/usr/bin/llvm-objdump")
 
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ../crawler)
-link_directories( ../../crawler/build )
+link_directories( ../../crawler/build/base ../../la/lib)
 
 set(crawler-qt_SRCS 
 	crawler-qt.cpp 
@@ -28,5 +28,5 @@ set(crawler-qt_SRCS
 )
 qt4_automoc(${crawler-qt_SRCS})
 add_executable(crawler-qt ${crawler-qt_SRCS})
-target_link_libraries(crawler-qt ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} blkid crawl)
+target_link_libraries(crawler-qt ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} blkid crawlerbase archive)
 install(TARGETS crawler-qt RUNTIME DESTINATION bin)
