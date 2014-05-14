@@ -78,6 +78,8 @@ void crawler_qt::makeMenu() {
 }
 
 void crawler_qt::makeMain() {
+	this->setWindowTitle(tr("Disk Crawler"));
+	
 	auto mainWidget = new QWidget(this);
 	auto layout = new QVBoxLayout(mainWidget);
 	mainWidget->setLayout(layout);
