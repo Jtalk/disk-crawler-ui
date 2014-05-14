@@ -18,6 +18,7 @@
 
 #include "crawler-qt.h"
 
+#include "base/Config.h"
 #include "base/Log.h"
 
 #include <QtGui/QApplication>
@@ -26,6 +27,7 @@ int main(int argc, char **argv) {
 	QApplication app(argc, argv);
 	crawler_qt foo;
 	Log logger;
+	Config config;
 	foo.show();
 	return app.exec();
 }

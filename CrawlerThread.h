@@ -44,6 +44,8 @@ private:
 	
 	DeviceInfo m_device;
 	bool m_initialized;
+	uint8_t walkersCount;
+	uint8_t completeWalkersCount;
 	
 	void run() override;
 	

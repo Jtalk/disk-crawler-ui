@@ -60,23 +60,41 @@ void CrawlerThread::run() {
 }
 
 void CrawlerThread::progressCallback(int percent) {
-	emit progress(percent);
+	int stepPercent = 100 / this->walkersCount;
+	int startPercent = this->completeWalkersCount * stepPercent;
+	int endPercent = (this->completeWalkersCount + 1) * stepPercent;
+	int relativePercent = startPercent + (endPercent - startPercent) * percent / 100;
+	emit progress(relativePercent);
 }
 
 void CrawlerThread::find() {
-	auto plain = new PlainWalker(this->m_device.name, this->m_device.size, bind(&CrawlerThread::progressCallback, this, _1));
+	this->completeWalkersCount = 0;
+	this->walkersCount = 0;
+	auto callback = bind(&CrawlerThread::progressCallback, this, _1);
+	
+	auto plain = new PlainWalker(this->m_device.name, this->m_device.size, callback);
 	if (not *plain) {
 		delete plain;
 		emit error(tr("Access Denied"));
 		return;
 	}
-	this->m_results.splice(this->m_results.end(), plain->find((uint8_t*)"main"));
+	++this->walkersCount;
 	
-// 	auto checker = utility::walker(this->device.file_system);
-// 	if (checker == nullptr or not *checker) {
-// 		delete checker;
-// 		
-// 	}
+	auto checker = utility::walker(this->m_device.file_system, this->m_device.name, this->m_device.size, callback);
+	if (checker == nullptr or not *checker) {
+		logger()->debug("Undetected fs %u", this->m_device.file_system.c_str());
+		delete checker;
+		checker = nullptr;
+	} else {
+		++this->walkersCount;
+	}
+	
+	this->m_results.splice(this->m_results.end(), plain->find((uint8_t*)"main"));
+	++this->completeWalkersCount;
+	if (checker != nullptr) {
+		this->m_results.splice(this->m_results.end(), checker->find((uint8_t*)"main"));
+		++this->completeWalkersCount;
+	}
 	
 	emit endsearch();
 }
