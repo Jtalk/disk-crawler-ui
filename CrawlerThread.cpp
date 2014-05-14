@@ -16,10 +16,32 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DiskListWidgetItem.h"
+#include "CrawlerThread.h"
 
-DiskListWidgetItem::DiskListWidgetItem(const QString &text, QListWidget *view, const DeviceInfo &device):
-	QListWidgetItem(text, view), device(device)
+CrawlerThread::CrawlerThread(QObject *parent): QThread(parent), initialized(false)
 {}
 
-#include "DiskListWidgetItem.moc"
+CrawlerThread::~CrawlerThread() 
+{}
+
+void CrawlerThread::addDevice(const DeviceInfo &info) {
+	this->device = info;
+	this->initialized = true;
+}
+
+void CrawlerThread::run() {
+	if (not this->initialized) {
+		this->error(tr("Running uninitialized thread, try again"));
+		return;
+	}
+	
+	// Handling code here
+	
+	this->progressCallback(100);
+}
+
+void CrawlerThread::progressCallback(int percent) {
+	emit progress(percent);
+}
+
+#include "CrawlerThread.moc"

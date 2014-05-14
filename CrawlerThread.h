@@ -18,51 +18,27 @@
 
 #pragma once
 
-#include <QtGui/QMainWindow>
+#include "devpick.h"
 
-#include <array>
+#include <QtCore/QThread>
 
-class QListWidget;
-class QListWidgetItem;
-class QAction;
-class QProgressBar;
-
-class CrawlerThread;
-class NotificationWidget;
-
-class crawler_qt : public QMainWindow {
+class CrawlerThread : public QThread {
 	Q_OBJECT
+
+public:
+	CrawlerThread(QObject *parent);
+	virtual ~CrawlerThread();
+	
+	void addDevice(const DeviceInfo &info);
+	
+signals:
+	void progress(int percent);
+	void error(QString text);
 	
 private:
-	enum ActionType {
-		QUIT = 0,
-		ANALYZE,
-		
-		MAX_ACTION
-	};
+	DeviceInfo device;
+	bool initialized;
 	
-	std::array<QAction*, MAX_ACTION> m_actions;
-	QListWidget *m_devicesList;
-	QProgressBar *m_progressbar;
-	NotificationWidget *m_notificationWidget;
-	
-	CrawlerThread *m_thread;
-	
-	void makeActions();
-	void makeMenu();
-	void makeMain();
-	void place();
-	
-	void showResult();
-	
-	void inform(const QString &message);
-	
-public slots:
-	void analyze(QListWidgetItem *chosen = nullptr);
-	void progress(int percent);
-	void on_thread_error(QString error);
-	
-public:
-	crawler_qt();
-	virtual ~crawler_qt();
+	void run() override;
+	void progressCallback(int percent);
 };

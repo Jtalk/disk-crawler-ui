@@ -18,6 +18,7 @@
 
 #include "crawler-qt.h"
 
+#include "CrawlerThread.h"
 #include "DiskListWidgetItem.h"
 #include "NotificationWidget.h"
 
@@ -33,6 +34,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QProgressBar>
 
 static QString humanReadable(size_t size) {
 	int i = 0;
@@ -44,7 +46,7 @@ static QString humanReadable(size_t size) {
 	return QString::number(size) + " " + units[i];
 }
 
-crawler_qt::crawler_qt() {
+crawler_qt::crawler_qt(): m_thread(nullptr) {
 	this->place();
 	this->makeActions();
 	this->makeMenu();
@@ -52,7 +54,9 @@ crawler_qt::crawler_qt() {
 }
 
 crawler_qt::~crawler_qt()
-{}
+{
+	delete this->m_thread;
+}
 
 void crawler_qt::place() {
 	QDesktopWidget *d = QApplication::desktop();
@@ -83,6 +87,8 @@ void crawler_qt::makeMenu() {
 	auto file = new QMenu(tr("&File"), menubar);
 	file->addAction(this->m_actions[QUIT]);
 	menubar->addMenu(file);
+	
+	menubar->setVisible(false);
 }
 
 void crawler_qt::makeMain() {
@@ -101,9 +107,8 @@ void crawler_qt::makeMain() {
 	this->m_devicesList = new QListWidget(mainWidget);
 	auto list = devpick();
 	for (auto &device : list) {
-		QLatin1String device_name = QLatin1String(device.name.c_str());
-		QString content = device_name + ", size: " + humanReadable(device.size) + ", " + QLatin1String(device.file_system.c_str());
-		auto current = new DiskListWidgetItem(content, this->m_devicesList, device_name);
+		QString content = QLatin1String(device.name.c_str()) + ", size: " + humanReadable(device.size) + ", " + QLatin1String(device.file_system.c_str());
+		auto current = new DiskListWidgetItem(content, this->m_devicesList, device);
 		this->m_devicesList->addItem(current);
 	}
 	connect(this->m_devicesList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(analyze(QListWidgetItem*)));
@@ -116,6 +121,20 @@ void crawler_qt::makeMain() {
 	upperLayout->addItem(buttonsLayout);
 	
 	layout->addItem(upperLayout);
+	
+	this->m_progressbar = new QProgressBar(mainWidget);
+	this->m_progressbar->setVisible(false);
+	this->m_progressbar->setMaximum(100);
+	this->m_progressbar->setMinimum(0);
+	
+	this->m_thread = new CrawlerThread(this);
+	connect(this->m_thread, SIGNAL(progress(int)), SLOT(progress(int)));
+	connect(this->m_thread, SIGNAL(error(QString)), SLOT(on_thread_error(QString)));
+	
+	layout->addWidget(this->m_progressbar);
+}
+
+void crawler_qt::showResult() {
 }
 
 void crawler_qt::inform(const QString &message) {
@@ -134,7 +153,26 @@ void crawler_qt::analyze(QListWidgetItem *chosen) {
 	} else {
 		diskSelected = (DiskListWidgetItem*)chosen;
 	}
-	this->inform(QString("Device %1 is selected").arg(diskSelected->device_name));	
+	this->inform(QString("Device %1 is selected").arg(diskSelected->device.name.c_str()));
+	this->m_progressbar->setVisible(true);
+	this->m_progressbar->setValue(0);
+	
+	this->m_thread->addDevice(diskSelected->device);
+	this->m_thread->start();
+}
+
+void crawler_qt::progress(int percent) {
+	this->m_progressbar->setValue(percent);
+	if (percent == 100) {
+		this->inform("Showing result");
+		this->showResult();
+	} 
+}
+
+void crawler_qt::on_thread_error(QString error) {
+	this->inform(error);
+	this->m_thread->wait();
+	this->m_progressbar->setVisible(false);
 }
 
 #include "crawler-qt.moc"

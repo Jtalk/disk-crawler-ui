@@ -18,10 +18,12 @@
 
 #pragma once
 
+#include "devpick.h"
+
 #include <QListWidget>
 
 struct DiskListWidgetItem : public QListWidgetItem {
-	const QString device_name;
+	const DeviceInfo device;
 	
-	DiskListWidgetItem(const QString &text, QListWidget *view, const QString &device_name);
+	DiskListWidgetItem(const QString &text, QListWidget *view, const DeviceInfo &device);
 };
