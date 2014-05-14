@@ -18,6 +18,9 @@
 
 #include "CrawlerThread.h"
 
+#include "base/FSWalker.h"
+#include "base/PlainWalker.h"
+
 CrawlerThread::CrawlerThread(QObject *parent): QThread(parent), initialized(false)
 {}
 
@@ -35,13 +38,17 @@ void CrawlerThread::run() {
 		return;
 	}
 	
-	// Handling code here
+	this->find();
 	
 	this->progressCallback(100);
 }
 
 void CrawlerThread::progressCallback(int percent) {
 	emit progress(percent);
+}
+
+void CrawlerThread::find() {
+	
 }
 
 #include "CrawlerThread.moc"

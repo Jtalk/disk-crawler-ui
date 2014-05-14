@@ -40,5 +40,8 @@ private:
 	bool initialized;
 	
 	void run() override;
+	
 	void progressCallback(int percent);
+	
+	void find();
 };

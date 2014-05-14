@@ -15,7 +15,7 @@ set (CMAKE_LINKER  "/usr/bin/llvm-ld")
 set (CMAKE_NM      "/usr/bin/llvm-nm")
 set (CMAKE_OBJDUMP "/usr/bin/llvm-objdump")
 
-include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ../../crawler)
+include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ../crawler)
 link_directories( ../../crawler/build )
 
 set(crawler-qt_SRCS 
