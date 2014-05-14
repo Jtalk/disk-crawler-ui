@@ -45,17 +45,15 @@ crawler_qt::~crawler_qt()
 {}
 
 void crawler_qt::place() {
-	auto size = this->size();
-	size.setHeight(size.height() * 1.4);
-	size.setWidth(size.width() * 1.4);
-	this->resize(size);
 	QDesktopWidget *d = QApplication::desktop();
 	int ws = d->width();   // returns screen width
 	int h = d->height();  // returns screen height
+	QSize size(ws / 2, h / 2);
 	int mw = size.width();
 	int mh = size.height();
 	int cw = (ws/2) - (mw/2);
 	int ch = (h/2) - (mh/2);
+	this->resize(size);
 	this->move(cw,ch);
 }
 
@@ -126,7 +124,7 @@ void crawler_qt::analyze(QListWidgetItem *chosen) {
 	} else {
 		diskSelected = (DiskListWidgetItem*)chosen;
 	}
-	this->inform(QString("Device %s is selected").arg(diskSelected->device_name));	
+	this->inform(QString("Device %1 is selected").arg(diskSelected->device_name));	
 }
 
 #include "crawler-qt.moc"
