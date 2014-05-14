@@ -27,6 +27,7 @@ set(crawler-qt_SRCS
 	NotificationWidget.cpp
 	ResultsWindow.cpp
 	HexWidget.cpp
+	SearchResultItem.cpp
 )
 qt4_automoc(${crawler-qt_SRCS})
 add_executable(crawler-qt ${crawler-qt_SRCS})
