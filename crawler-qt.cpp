@@ -18,6 +18,8 @@
 
 #include "crawler-qt.h"
 
+#include "DiskListWidgetItem.h"
+
 #include "devpick.h"
 
 #include <QtGui/QLabel>
@@ -59,8 +61,9 @@ void crawler_qt::makeMain() {
 	auto devicesList = new QListWidget(mainWidget);
 	auto list = devpick();
 	for (auto &device : list) {
-		QString content = QLatin1String(device.name.c_str()) + ", size: " + QString::number(device.size) + " B";
-		auto current = new QListWidgetItem(content, devicesList);
+		QLatin1String device_name = QLatin1String(device.name.c_str());
+		QString content = device_name + ", size: " + QString::number(device.size) + " B";
+		auto current = new DiskListWidgetItem(content, devicesList, device_name);
 		devicesList->addItem(current);
 	}
 	layout->addItem(new QWidgetItem(devicesList));

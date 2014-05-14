@@ -21,6 +21,7 @@ set(crawler-qt_SRCS
 	crawler-qt.cpp 
 	devpick.cpp
 	main.cpp
+	DiskListWidgetItem.cpp
 )
 qt4_automoc(${crawler-qt_SRCS})
 add_executable(crawler-qt ${crawler-qt_SRCS})
