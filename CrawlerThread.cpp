@@ -21,6 +21,11 @@
 #include "base/FSWalker.h"
 #include "base/PlainWalker.h"
 
+#include <functional>
+
+using std::bind;
+using namespace std::placeholders;
+
 CrawlerThread::CrawlerThread(QObject *parent): QThread(parent), initialized(false)
 {}
 
@@ -34,13 +39,11 @@ void CrawlerThread::addDevice(const DeviceInfo &info) {
 
 void CrawlerThread::run() {
 	if (not this->initialized) {
-		this->error(tr("Running uninitialized thread, try again"));
+		emit error(tr("Running uninitialized thread, try again"));
 		return;
 	}
 	
-	this->find();
-	
-	this->progressCallback(100);
+	this->find();	
 }
 
 void CrawlerThread::progressCallback(int percent) {
@@ -48,7 +51,14 @@ void CrawlerThread::progressCallback(int percent) {
 }
 
 void CrawlerThread::find() {
-	
+	auto plain = new PlainWalker(this->device.name, this->device.size, bind(&CrawlerThread::progressCallback, this, _1));
+	if (not *plain) {
+		delete plain;
+		emit error(tr("Access Denied"));
+		return;
+	}
+	auto results = plain->find((uint8_t*)"abc");
+	this->progressCallback(100);
 }
 
 #include "CrawlerThread.moc"
