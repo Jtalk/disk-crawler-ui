@@ -33,7 +33,7 @@ QString format(const Buffer &text, size_t startOffset) {
 	size_t startAddress = ITEMS_PER_ROW * (startOffset / ITEMS_PER_ROW);
 	size_t lastAddress = ITEMS_PER_ROW * ceil(float(startOffset + text.size()) / ITEMS_PER_ROW);
 	
-	for (size_t addr = startAddress; addr <= lastAddress; addr++) {
+	for (size_t addr = startAddress; addr <= lastAddress; addr+= ITEMS_PER_ROW) {
 		QString straddr = "0x" + QString::number(addr, 16).rightJustified(ADDRESS_SIZE, '0');
 		addresses << straddr;
 		
@@ -47,10 +47,11 @@ QString format(const Buffer &text, size_t startOffset) {
 				item_view = PLACEHOLDER_VIEW;
 			} else {
 				size_t offset = charidx - startOffset;
-				logger()->debug("Offset is %u, char id is %u, start offset is %u, size is %u", offset, charidx, startOffset, text.size());
-				item_hex = QString::number(text.cbegin()[offset], 16);
+				item_hex = QString::number(text.cbegin()[offset], 16).rightJustified(2, '0');
 				QChar value(text.cbegin()[offset]);
-				if (not value.isDigit() and not value.isLetter() and value != ' ') {
+				if (value.isSpace() or value.category() == QChar::Other_Format) {
+					value = ' ';
+				} else if (not value.isDigit() and not value.isLetter() and not value.isPunct() and value != ' ') {
 					value = '.';
 				}
 				item_view = value;
