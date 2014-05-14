@@ -37,11 +37,20 @@ void CrawlerThread::addDevice(const DeviceInfo &info) {
 	this->initialized = true;
 }
 
+SignatureWalker::results_t &CrawlerThread::found() {
+	return this->m_results;
+}
+
 void CrawlerThread::run() {
 	if (not this->initialized) {
 		emit error(tr("Running uninitialized thread, try again"));
 		return;
 	}
+	
+	for (auto &result : this->m_results) {
+		delete result.first;
+	}
+	this->m_results.clear();
 	
 	this->find();	
 }
@@ -57,8 +66,15 @@ void CrawlerThread::find() {
 		emit error(tr("Access Denied"));
 		return;
 	}
-	auto results = plain->find((uint8_t*)"abc");
-	this->progressCallback(100);
+	this->m_results.splice(this->m_results.end(), plain->find((uint8_t*)"main"));
+	
+// 	auto checker = utility::walker(this->device.file_system);
+// 	if (checker == nullptr or not *checker) {
+// 		delete checker;
+// 		
+// 	}
+	
+	emit endsearch();
 }
 
 #include "CrawlerThread.moc"

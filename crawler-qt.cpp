@@ -128,13 +128,18 @@ void crawler_qt::makeMain() {
 	this->m_progressbar->setMinimum(0);
 	
 	this->m_thread = new CrawlerThread(this);
-	connect(this->m_thread, SIGNAL(progress(int)), SLOT(progress(int)));
-	connect(this->m_thread, SIGNAL(error(QString)), SLOT(on_thread_error(QString)));
+	connect(this->m_thread, SIGNAL(progress(int)), this->m_progressbar, SLOT(setValue(int)));
+	connect(this->m_thread, SIGNAL(error(QString)), SLOT(onThreadError(QString)));
 	
 	layout->addWidget(this->m_progressbar);
 }
 
 void crawler_qt::showResult() {
+	if (this->m_thread->found().empty()) {
+		this->inform("Nothing found");
+	} else {
+		this->inform(QString("Found %1 items").arg(this->m_thread->found().size()));
+	}
 }
 
 void crawler_qt::inform(const QString &message) {
@@ -161,15 +166,13 @@ void crawler_qt::analyze(QListWidgetItem *chosen) {
 	this->m_thread->start();
 }
 
-void crawler_qt::progress(int percent) {
-	this->m_progressbar->setValue(percent);
-	if (percent == 100) {
-		this->inform("Showing result");
-		this->showResult();
-	} 
+void crawler_qt::onEndSearch() {
+	this->inform("Showing result");
+	this->m_thread->wait();
+	this->showResult();
 }
 
-void crawler_qt::on_thread_error(QString error) {
+void crawler_qt::onThreadError(QString error) {
 	this->inform(error);
 	this->m_thread->wait();
 	this->m_progressbar->setVisible(false);

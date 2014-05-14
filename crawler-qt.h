@@ -59,8 +59,8 @@ private:
 	
 public slots:
 	void analyze(QListWidgetItem *chosen = nullptr);
-	void progress(int percent);
-	void on_thread_error(QString error);
+	void onEndSearch();
+	void onThreadError(QString error);
 	
 public:
 	crawler_qt();

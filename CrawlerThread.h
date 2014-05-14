@@ -19,6 +19,7 @@
 #pragma once
 
 #include "devpick.h"
+#include "base/SignatureWalker.h"
 
 #include <QtCore/QThread>
 
@@ -30,12 +31,16 @@ public:
 	virtual ~CrawlerThread();
 	
 	void addDevice(const DeviceInfo &info);
+	SignatureWalker::results_t &found();
 	
 signals:
 	void progress(int percent);
+	void endsearch();
 	void error(QString text);
 	
 private:
+	SignatureWalker::results_t m_results;
+	
 	DeviceInfo device;
 	bool initialized;
 	
