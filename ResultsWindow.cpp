@@ -95,6 +95,7 @@ void ResultsWindow::clear() {
 }
 
 void ResultsWindow::formList() {
+	this->m_list->clear();
 	for (const auto &result : this->m_results) {
 		ByteReader *reader = result.first;
 		reader->reset();
