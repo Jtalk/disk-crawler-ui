@@ -24,10 +24,12 @@
 
 class QListWidget;
 
+class ByteReader;
+
 class SearchResultItem : public QListWidgetItem {
 public:
 	const Buffer array;
 	const size_t offset;
 	
-	SearchResultItem(QListWidget *view, const QString &searchPattern, Buffer &&raw, size_t offset);
+	SearchResultItem(QListWidget *view, const QString &searchPattern, Buffer &&raw, size_t offset, const ByteReader *reader);
 };

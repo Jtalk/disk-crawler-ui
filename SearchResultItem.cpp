@@ -18,10 +18,21 @@
 
 #include "SearchResultItem.h"
 
+#include "base/ByteReader.h"
+#include "base/PlainFileStream.h"
+
 #include <QtGui/QListWidget>
 
-SearchResultItem::SearchResultItem(QListWidget *view, const QString &searchPattern, Buffer &&raw, size_t offset): 
-	QListWidgetItem(searchPattern + " at 0x" + QString::number(offset, 16), view), array(std::move(raw)), offset(offset)
+static QString readerInfo(const ByteReader *reader) {
+	if (dynamic_cast<const PlainFileStream*>(reader) != nullptr) {
+		return "";
+	} else {
+		return QLatin1String(" in container at 0x") + QString::number(reader->start_offset());
+	}
+}
+
+SearchResultItem::SearchResultItem(QListWidget *view, const QString &searchPattern, Buffer &&raw, size_t offset, const ByteReader *reader): 
+	QListWidgetItem(searchPattern + " at 0x" + QString::number(offset, 16) + readerInfo(reader), view), array(std::move(raw)), offset(offset)
 {}
 
 #include "SearchResultItem.moc"
