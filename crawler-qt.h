@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "AddPatternWindow.h"
+
 #include "devpick.h"
 
 #include <QtGui/QMainWindow>
@@ -32,6 +34,7 @@ class QProgressBar;
 class QCheckBox;
 class QToolButton;
 
+class AddPatternWindow;
 class CrawlerThread;
 class NotificationWidget;
 class ResultsWindow;
@@ -43,6 +46,7 @@ private:
 	enum ActionType {
 		QUIT = 0,
 		ANALYZE,
+		ADD_PATTERN,
 		
 		MAX_ACTION
 	};
@@ -60,6 +64,8 @@ private:
 	QCheckBox *m_verboseBox;
 	
 	ResultsWindow *m_resultsWindow;
+	AddPatternWindow *m_addWindow;
+	QSize m_addWindowSize;
 	
 	CrawlerThread *m_thread;
 	
@@ -67,6 +73,7 @@ private:
 	void makeMenu();
 	void makeMain();
 	void makeResultsWindow();
+	void makeAddWindow();
 	void place();
 	
 	void showResult();
@@ -83,6 +90,8 @@ public slots:
 	void onEndSearch();
 	void onThreadError(QString error);
 	void verbosity(bool verbose);
+	void showAddPattern();
+	void addPattern(const AddPatternWindow::Result &result);
 	
 public:
 	crawler_qt();

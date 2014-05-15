@@ -18,6 +18,7 @@
 
 #include "crawler-qt.h"
 
+#include "AddPatternWindow.h"
 #include "CrawlerThread.h"
 #include "SearchListWidgetItem.h"
 #include "NotificationWidget.h"
@@ -58,6 +59,7 @@ crawler_qt::crawler_qt(): m_thread(nullptr) {
 	this->makeMenu();
 	this->makeMain();
 	this->makeResultsWindow();
+	this->makeAddWindow();
 }
 
 crawler_qt::~crawler_qt()
@@ -65,6 +67,7 @@ crawler_qt::~crawler_qt()
 	this->m_thread->wait();
 	delete this->m_thread;
 	delete this->m_resultsWindow;
+	delete this->m_addWindow;
 }
 
 void crawler_qt::place() {
@@ -89,6 +92,9 @@ void crawler_qt::makeActions() {
 	
 	this->m_actions[ANALYZE] = new QAction(tr("Analyze"), this);
 	connect(this->m_actions[ANALYZE], SIGNAL(triggered()), SLOT(analyze()));
+	
+	this->m_actions[ADD_PATTERN] = new QAction(tr("Add"), this);
+	connect(this->m_actions[ADD_PATTERN], SIGNAL(triggered()), SLOT(showAddPattern()));
 }
 
 void crawler_qt::makeMenu() {
@@ -125,12 +131,19 @@ void crawler_qt::makeMain() {
 	upperLayout->addWidget(this->m_searchList);
 	
 	auto buttonsLayout = new QVBoxLayout(mainWidget);
+	
 	this->m_analyzeButton = new QToolButton(mainWidget);
 	this->m_analyzeButton->setDefaultAction(this->m_actions[ANALYZE]);
 	buttonsLayout->addWidget(this->m_analyzeButton, 0, Qt::AlignTop);
+	
+	auto addPatternButton = new QToolButton(mainWidget);
+	addPatternButton->setDefaultAction(this->m_actions[ADD_PATTERN]);
+	buttonsLayout->addWidget(addPatternButton, 0, Qt::AlignTop);
+	
 	this->m_verboseBox = new QCheckBox(tr("Verbose logging"), mainWidget);
 	connect(this->m_verboseBox, SIGNAL(clicked(bool)), SLOT(verbosity(bool)));
 	buttonsLayout->addWidget(this->m_verboseBox);
+	
 	upperLayout->addItem(buttonsLayout);
 	
 	layout->addItem(upperLayout);
@@ -153,6 +166,15 @@ void crawler_qt::makeResultsWindow() {
 	this->m_resultsWindow->hide();
 	auto geom = this->geometry();
 	this->m_resultsWindow->setGeometry(geom);
+}
+
+void crawler_qt::makeAddWindow() {
+	this->m_addWindow = new AddPatternWindow();
+	connect(this->m_addWindow, SIGNAL(finished(AddPatternWindow::Result)), SLOT(addPattern(AddPatternWindow::Result)));
+	this->m_addWindow->hide();
+	this->m_addWindowSize = this->m_addWindow->size();
+	this->m_addWindowSize.setWidth(this->m_addWindowSize.width() * 1.5);
+	this->m_addWindowSize.setHeight(1);
 }
 
 void crawler_qt::showResult() {
@@ -219,6 +241,26 @@ void crawler_qt::onThreadError(QString error) {
 	this->m_thread->wait();
 	this->unlock();
 	this->m_progressbar->setVisible(false);
+}
+
+void crawler_qt::showAddPattern() {
+	QSize size = this->m_addWindowSize;
+	
+	int ws = this->width();
+	int h = this->height();
+	int mw = size.width();
+	int mh = size.height();
+	int cw = (ws/2) - (mw/2);
+	int ch = (h/2) - (mh/2);
+	this->m_addWindow->resize(size);
+	this->m_addWindow->move(this->geometry().x() + cw, this->geometry().y() + ch);
+	this->m_addWindow->show();
+	this->m_addWindow->activateWindow();	
+}
+
+void crawler_qt::addPattern(const AddPatternWindow::Result &result) {
+	auto item = new SearchListWidgetItem(result.pattern, this->m_searchList, byte_array_t((uint8_t*)result.pattern.toStdString().c_str()));
+	this->m_searchList->addItem(item);
 }
 
 #include "crawler-qt.moc"

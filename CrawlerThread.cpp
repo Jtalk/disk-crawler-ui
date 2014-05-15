@@ -102,10 +102,12 @@ void CrawlerThread::find() {
 		++this->walkersCount;
 	}
 	
-	this->m_results.splice(this->m_results.end(), plain->find(this->m_patterns));
+	auto results = plain->find(this->m_patterns);
+	SignatureWalker::merge(this->m_results, results);
 	++this->completeWalkersCount;
 	if (checker != nullptr) {
-		this->m_results.splice(this->m_results.end(), checker->find(this->m_patterns));
+		results = checker->find(this->m_patterns);
+		SignatureWalker::merge(this->m_results, results);
 		++this->completeWalkersCount;
 	}
 	

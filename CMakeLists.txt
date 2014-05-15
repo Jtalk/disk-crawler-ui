@@ -19,7 +19,7 @@ set (CMAKE_OBJDUMP "/usr/bin/llvm-objdump")
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ../crawler)
 link_directories( ../../crawler/build/base )
 
-set(crawler-qt_SRCS 
+set(crawler-qt_SRCS  
 	crawler-qt.cpp 
 	devpick.cpp
 	main.cpp
@@ -29,6 +29,7 @@ set(crawler-qt_SRCS
 	ResultsWindow.cpp
 	HexWidget.cpp
 	SearchResultItem.cpp
+	AddPatternWindow.cpp
 )
 qt4_automoc(${crawler-qt_SRCS})
 add_executable(crawler-qt ${crawler-qt_SRCS})
