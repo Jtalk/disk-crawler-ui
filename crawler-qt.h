@@ -26,6 +26,8 @@ class QListWidget;
 class QListWidgetItem;
 class QAction;
 class QProgressBar;
+class QCheckBox;
+class QToolButton;
 
 class CrawlerThread;
 class NotificationWidget;
@@ -46,6 +48,8 @@ private:
 	QListWidget *m_devicesList;
 	QProgressBar *m_progressbar;
 	NotificationWidget *m_notificationWidget;
+	QToolButton *m_analyzeButton;
+	QCheckBox *m_verboseBox;
 	
 	ResultsWindow *m_resultsWindow;
 	
@@ -59,12 +63,16 @@ private:
 	
 	void showResult();
 	
+	void lock();
+	void unlock();
+	
 	void inform(const QString &message);
 	
 public slots:
 	void analyze(QListWidgetItem *chosen = nullptr);
 	void onEndSearch();
 	void onThreadError(QString error);
+	void verbosity(bool verbose);
 	
 public:
 	crawler_qt();

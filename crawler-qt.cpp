@@ -23,6 +23,7 @@
 #include "NotificationWidget.h"
 #include "ResultsWindow.h"
 
+#include "base/Config.h"
 #include "devpick.h"
 
 #include <QtGui/QApplication>
@@ -35,7 +36,9 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QBoxLayout>
 #include <QtGui/QProgressBar>
+#include <QtGui/QCheckBox>
 
 static QString humanReadable(size_t size) {
 	int i = 0;
@@ -119,9 +122,12 @@ void crawler_qt::makeMain() {
 	upperLayout->addItem(new QWidgetItem(this->m_devicesList));
 	
 	auto buttonsLayout = new QVBoxLayout(mainWidget);
-	auto analyzeButton = new QToolButton(mainWidget);
-	analyzeButton->setDefaultAction(this->m_actions[ANALYZE]);
-	buttonsLayout->addWidget(analyzeButton, 0, Qt::AlignTop);
+	this->m_analyzeButton = new QToolButton(mainWidget);
+	this->m_analyzeButton->setDefaultAction(this->m_actions[ANALYZE]);
+	buttonsLayout->addWidget(this->m_analyzeButton, 0, Qt::AlignTop);
+	this->m_verboseBox = new QCheckBox(tr("Verbose logging"), mainWidget);
+	connect(this->m_verboseBox, SIGNAL(clicked(bool)), SLOT(verbosity(bool)));
+	buttonsLayout->addWidget(this->m_verboseBox);
 	upperLayout->addItem(buttonsLayout);
 	
 	layout->addItem(upperLayout);
@@ -156,6 +162,16 @@ void crawler_qt::inform(const QString &message) {
 	this->m_notificationWidget->notify(message);
 }
 
+void crawler_qt::lock() {
+	this->m_analyzeButton->setEnabled(false);
+	this->m_verboseBox->setEnabled(false);
+}
+
+void crawler_qt::unlock() {
+	this->m_analyzeButton->setEnabled(true);
+	this->m_verboseBox->setEnabled(true);
+}
+
 void crawler_qt::analyze(QListWidgetItem *chosen) {
 	DiskListWidgetItem *diskSelected;
 	if (chosen == nullptr) {
@@ -168,6 +184,7 @@ void crawler_qt::analyze(QListWidgetItem *chosen) {
 	} else {
 		diskSelected = (DiskListWidgetItem*)chosen;
 	}
+	this->lock();
 	this->inform(QString("Device %1 is selected").arg(diskSelected->device.name.c_str()));
 	this->m_progressbar->setVisible(true);
 	this->m_progressbar->setValue(0);
@@ -176,15 +193,21 @@ void crawler_qt::analyze(QListWidgetItem *chosen) {
 	this->m_thread->start();
 }
 
+void crawler_qt::verbosity(bool verbose) {
+	config()->VERBOSE = verbose;
+}
+
 void crawler_qt::onEndSearch() {
 	this->inform("Showing result");
 	this->m_thread->wait();
+	this->unlock();
 	this->showResult();
 }
 
 void crawler_qt::onThreadError(QString error) {
 	this->inform(error);
 	this->m_thread->wait();
+	this->unlock();
 	this->m_progressbar->setVisible(false);
 }
 
