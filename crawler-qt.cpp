@@ -24,7 +24,6 @@
 #include "ResultsWindow.h"
 
 #include "base/Config.h"
-#include "devpick.h"
 
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
@@ -39,6 +38,9 @@
 #include <QtGui/QBoxLayout>
 #include <QtGui/QProgressBar>
 #include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
+
+#include <iterator>
 
 static QString humanReadable(size_t size) {
 	int i = 0;
@@ -111,15 +113,16 @@ void crawler_qt::makeMain() {
 	
 	auto upperLayout = new QHBoxLayout(mainWidget);
 	
-	this->m_devicesList = new QListWidget(mainWidget);
-	auto list = devpick();
-	for (auto &device : list) {
+	this->m_devicesListView = new QComboBox(mainWidget);
+	this->m_devicesListInfo = devpick();
+	for (auto &device : this->m_devicesListInfo) {
 		QString content = QLatin1String(device.name.c_str()) + ", size: " + humanReadable(device.size) + ", " + QLatin1String(device.file_system.c_str());
-		auto current = new DiskListWidgetItem(content, this->m_devicesList, device);
-		this->m_devicesList->addItem(current);
+		this->m_devicesListView->addItem(content);
 	}
-	connect(this->m_devicesList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), SLOT(analyze(QListWidgetItem*)));
-	upperLayout->addItem(new QWidgetItem(this->m_devicesList));
+	layout->addWidget(this->m_devicesListView);
+	
+	this->m_searchList = new QListWidget(mainWidget);
+	upperLayout->addWidget(this->m_searchList);
 	
 	auto buttonsLayout = new QVBoxLayout(mainWidget);
 	this->m_analyzeButton = new QToolButton(mainWidget);
@@ -172,24 +175,19 @@ void crawler_qt::unlock() {
 	this->m_verboseBox->setEnabled(true);
 }
 
-void crawler_qt::analyze(QListWidgetItem *chosen) {
-	DiskListWidgetItem *diskSelected;
-	if (chosen == nullptr) {
-		auto selected = this->m_devicesList->selectedItems();
-		if (selected.empty()) {
-			this->inform(tr("No device selected"));
-			return;
-		} 
-		diskSelected = (DiskListWidgetItem*)selected.front();
-	} else {
-		diskSelected = (DiskListWidgetItem*)chosen;
+void crawler_qt::analyze() {
+	int index = this->m_devicesListView->currentIndex();
+	if (index < 0) {
+		this->inform(tr("No device selected"));
+		return;
 	}
+	auto &disk = *std::next(this->m_devicesListInfo.cbegin(), index);
 	this->lock();
-	this->inform(QString("Device %1 is selected").arg(diskSelected->device.name.c_str()));
+	logger()->debug("Device %s is selected", disk.name.c_str());
 	this->m_progressbar->setVisible(true);
 	this->m_progressbar->setValue(0);
 	
-	this->m_thread->addDevice(diskSelected->device);
+	this->m_thread->addDevice(disk);
 	this->m_thread->start();
 }
 
@@ -198,7 +196,7 @@ void crawler_qt::verbosity(bool verbose) {
 }
 
 void crawler_qt::onEndSearch() {
-	this->inform("Showing result");
+	logger()->debug("Showing results");
 	this->m_thread->wait();
 	this->unlock();
 	this->showResult();

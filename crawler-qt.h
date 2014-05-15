@@ -18,12 +18,15 @@
 
 #pragma once
 
+#include "devpick.h"
+
 #include <QtGui/QMainWindow>
 
 #include <array>
 
 class QListWidget;
 class QListWidgetItem;
+class QComboBox;
 class QAction;
 class QProgressBar;
 class QCheckBox;
@@ -45,7 +48,12 @@ private:
 	};
 	
 	std::array<QAction*, MAX_ACTION> m_actions;
-	QListWidget *m_devicesList;
+	
+	info_list_t m_devicesListInfo;
+	QComboBox *m_devicesListView;
+	
+	QListWidget *m_searchList;
+	
 	QProgressBar *m_progressbar;
 	NotificationWidget *m_notificationWidget;
 	QToolButton *m_analyzeButton;
@@ -69,7 +77,7 @@ private:
 	void inform(const QString &message);
 	
 public slots:
-	void analyze(QListWidgetItem *chosen = nullptr);
+	void analyze();
 	void onEndSearch();
 	void onThreadError(QString error);
 	void verbosity(bool verbose);
