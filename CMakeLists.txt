@@ -1,6 +1,7 @@
 project(crawler-qt)
 cmake_minimum_required(VERSION 2.6)
 find_package(Qt4 REQUIRED)
+find_package(LibArchive REQUIRED)
 
 # Compilation settings
 set (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
@@ -16,7 +17,7 @@ set (CMAKE_NM      "/usr/bin/llvm-nm")
 set (CMAKE_OBJDUMP "/usr/bin/llvm-objdump")
 
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ../crawler)
-link_directories( ../../crawler/build/base ../../la/lib)
+link_directories( ../../crawler/build/base )
 
 set(crawler-qt_SRCS 
 	crawler-qt.cpp 
@@ -31,5 +32,5 @@ set(crawler-qt_SRCS
 )
 qt4_automoc(${crawler-qt_SRCS})
 add_executable(crawler-qt ${crawler-qt_SRCS})
-target_link_libraries(crawler-qt ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} blkid crawlerbase archive)
+target_link_libraries(crawler-qt ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} blkid crawlerbase ${LibArchive_LIBRARY})
 install(TARGETS crawler-qt RUNTIME DESTINATION bin)
