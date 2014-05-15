@@ -56,6 +56,7 @@ void ResultsWindow::setResults(SignatureWalker::results_t && new_results) {
 
 void ResultsWindow::show() {
 	this->formList();
+	this->activateWindow();
 	this->QWidget::show();
 }
 
