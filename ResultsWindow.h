@@ -33,7 +33,7 @@ class ResultsWindow : public QWidget {
 public:
 	ResultsWindow();
 
-	void setResults(SignatureWalker::results_t &&new_results);
+	void setResults(search_terms_t &&patterns, SignatureWalker::results_t &&new_results);
 	void show();
 	void hide();
 	
@@ -45,6 +45,7 @@ private:
 	HexWidget *m_hex;
 	
 	SignatureWalker::results_t m_results;
+	search_terms_t m_patterns;
 	
 	void makeMain();
 	

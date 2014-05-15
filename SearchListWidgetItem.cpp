@@ -16,14 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "SearchListWidgetItem.h"
 
-#include "devpick.h"
+SearchListWidgetItem::SearchListWidgetItem(const QString &text, QListWidget *view, byte_array_t &&pattern):
+	QListWidgetItem(text, view), pattern(std::move(pattern))
+{}
 
-#include <QListWidget>
-
-struct DiskListWidgetItem : public QListWidgetItem {
-	const DeviceInfo device;
-	
-	DiskListWidgetItem(const QString &text, QListWidget *view, const DeviceInfo &device);
-};
+#include "SearchListWidgetItem.moc"

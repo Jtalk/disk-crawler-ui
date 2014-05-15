@@ -74,6 +74,8 @@ private:
 	void lock();
 	void unlock();
 	
+	void setSearchTerms();
+	
 	void inform(const QString &message);
 	
 public slots:

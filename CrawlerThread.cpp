@@ -37,6 +37,10 @@ void CrawlerThread::addDevice(const DeviceInfo &info) {
 	this->m_initialized = true;
 }
 
+void CrawlerThread::addPatterns(search_terms_t && terms) {
+	this->m_patterns = std::move(terms);
+}
+
 SignatureWalker::results_t &CrawlerThread::found() {
 	return this->m_results;
 }
@@ -45,9 +49,18 @@ const DeviceInfo &CrawlerThread::device() const {
 	return this->m_device;
 }
 
+search_terms_t &CrawlerThread::patterns() {
+	return this->m_patterns;
+}
+
 void CrawlerThread::run() {
 	if (not this->m_initialized) {
 		emit error(tr("Running uninitialized thread, try again"));
+		return;
+	}
+	
+	if (this->m_patterns.empty()) {
+		emit error(tr("No patterns specified"));
 		return;
 	}
 	
@@ -89,10 +102,10 @@ void CrawlerThread::find() {
 		++this->walkersCount;
 	}
 	
-	this->m_results.splice(this->m_results.end(), plain->find((uint8_t*)"main"));
+	this->m_results.splice(this->m_results.end(), plain->find(this->m_patterns));
 	++this->completeWalkersCount;
 	if (checker != nullptr) {
-		this->m_results.splice(this->m_results.end(), checker->find((uint8_t*)"main"));
+		this->m_results.splice(this->m_results.end(), checker->find(this->m_patterns));
 		++this->completeWalkersCount;
 	}
 	

@@ -49,8 +49,9 @@ void ResultsWindow::view(QListWidgetItem *item) {
 	this->m_hex->setText(current->array, current->offset);
 }
 
-void ResultsWindow::setResults(SignatureWalker::results_t && new_results) {
+void ResultsWindow::setResults(search_terms_t &&patterns, SignatureWalker::results_t &&new_results) {
 	this->clear();
+	this->m_patterns = std::move(patterns);
 	this->m_results = std::move(new_results);
 }
 
@@ -104,13 +105,13 @@ void ResultsWindow::formList() {
 			size_t to_read = VIEW_SIZE * 3;
 			Buffer result(to_read);
 			size_t startp = 0;
-			if (offset > to_read / 2) {
-				startp = offset - to_read / 2;
+			if (offset.offset > to_read / 2) {
+				startp = offset.offset - to_read / 2;
 			}
 			reader->seekg(startp);
 			auto read = reader->read(result, to_read);
 			result.shrink(read);
-			auto item = new SearchResultItem(this->m_list, "Pattern", std::move(result), offset);
+			auto item = new SearchResultItem(this->m_list, QString((char*)this->m_patterns[offset.pattern_n].c_str()), std::move(result), offset.offset);
 			this->m_list->addItem(item);
 		}
 	}

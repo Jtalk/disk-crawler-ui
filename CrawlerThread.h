@@ -31,7 +31,9 @@ public:
 	virtual ~CrawlerThread();
 	
 	void addDevice(const DeviceInfo &info);
+	void addPatterns(search_terms_t &&terms);
 	SignatureWalker::results_t &found();
+	search_terms_t &patterns();
 	const DeviceInfo &device() const;
 	
 signals:
@@ -41,9 +43,11 @@ signals:
 	
 private:
 	SignatureWalker::results_t m_results;
+	search_terms_t m_patterns;
 	
 	DeviceInfo m_device;
 	bool m_initialized;
+	
 	uint8_t walkersCount;
 	uint8_t completeWalkersCount;
 	

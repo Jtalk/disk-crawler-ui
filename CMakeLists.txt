@@ -24,7 +24,7 @@ set(crawler-qt_SRCS
 	devpick.cpp
 	main.cpp
 	CrawlerThread.cpp
-	DiskListWidgetItem.cpp
+	SearchListWidgetItem.cpp
 	NotificationWidget.cpp
 	ResultsWindow.cpp
 	HexWidget.cpp

@@ -19,7 +19,7 @@
 #include "crawler-qt.h"
 
 #include "CrawlerThread.h"
-#include "DiskListWidgetItem.h"
+#include "SearchListWidgetItem.h"
 #include "NotificationWidget.h"
 #include "ResultsWindow.h"
 
@@ -156,7 +156,7 @@ void crawler_qt::makeResultsWindow() {
 }
 
 void crawler_qt::showResult() {
-	this->m_resultsWindow->setResults(std::move(this->m_thread->found()));
+	this->m_resultsWindow->setResults(std::move(this->m_thread->patterns()), std::move(this->m_thread->found()));
 	this->m_resultsWindow->setWindowTitle(this->m_thread->device().name.c_str());
 	this->m_resultsWindow->show();
 }
@@ -184,11 +184,23 @@ void crawler_qt::analyze() {
 	auto &disk = *std::next(this->m_devicesListInfo.cbegin(), index);
 	this->lock();
 	logger()->debug("Device %s is selected", disk.name.c_str());
+	
+	this->setSearchTerms();
+	
 	this->m_progressbar->setVisible(true);
 	this->m_progressbar->setValue(0);
 	
 	this->m_thread->addDevice(disk);
 	this->m_thread->start();
+}
+
+void crawler_qt::setSearchTerms() {
+	search_terms_t terms;
+	for (int i = 0; i < this->m_searchList->count(); i++) {
+		auto item = (SearchListWidgetItem*)this->m_searchList->item(i);
+		terms.push_back(item->pattern);
+	}
+	this->m_thread->addPatterns(std::move(terms));	
 }
 
 void crawler_qt::verbosity(bool verbose) {
