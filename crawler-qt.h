@@ -47,6 +47,7 @@ private:
 		QUIT = 0,
 		ANALYZE,
 		ADD_PATTERN,
+		REMOVE_PATTERN,
 		
 		MAX_ACTION
 	};
@@ -91,6 +92,7 @@ public slots:
 	void onThreadError(QString error);
 	void verbosity(bool verbose);
 	void showAddPattern();
+	void removePattern();
 	void addPattern(const AddPatternWindow::Result &result);
 	
 public:

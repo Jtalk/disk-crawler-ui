@@ -43,6 +43,8 @@
 
 #include <iterator>
 
+static const uint8_t BUTTON_SIZE = 180;
+
 static QString humanReadable(size_t size) {
 	int i = 0;
 	const char* units[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
@@ -90,11 +92,17 @@ void crawler_qt::makeActions() {
 	this->m_actions[QUIT]->setShortcut(QString("Ctrl+Q"));
 	connect(this->m_actions[QUIT], SIGNAL(triggered()), SLOT(close()));
 	
-	this->m_actions[ANALYZE] = new QAction(tr("Analyze"), this);
+	this->m_actions[ANALYZE] = new QAction(tr("Anal&yze"), this);
+	this->m_actions[ANALYZE]->setShortcut(QString("Ctrl+Y"));
 	connect(this->m_actions[ANALYZE], SIGNAL(triggered()), SLOT(analyze()));
 	
-	this->m_actions[ADD_PATTERN] = new QAction(tr("Add"), this);
+	this->m_actions[ADD_PATTERN] = new QAction(tr("&Add"), this);
+	this->m_actions[ADD_PATTERN]->setShortcut(QString("Ctrl+A"));
 	connect(this->m_actions[ADD_PATTERN], SIGNAL(triggered()), SLOT(showAddPattern()));
+	
+	this->m_actions[REMOVE_PATTERN] = new QAction(tr("&Remove"), this);
+	this->m_actions[REMOVE_PATTERN]->setShortcut(QString("Ctrl+R"));
+	connect(this->m_actions[REMOVE_PATTERN], SIGNAL(triggered()), SLOT(removePattern()));
 }
 
 void crawler_qt::makeMenu() {
@@ -108,6 +116,7 @@ void crawler_qt::makeMenu() {
 
 void crawler_qt::makeMain() {
 	this->setWindowTitle(tr("Disk Crawler"));
+	this->addAction(this->m_actions[QUIT]);
 	
 	auto mainWidget = new QWidget(this);
 	auto layout = new QVBoxLayout(mainWidget);
@@ -128,17 +137,28 @@ void crawler_qt::makeMain() {
 	layout->addWidget(this->m_devicesListView);
 	
 	this->m_searchList = new QListWidget(mainWidget);
+	this->m_searchList->setSelectionMode(QListWidget::ExtendedSelection);
 	upperLayout->addWidget(this->m_searchList);
 	
 	auto buttonsLayout = new QVBoxLayout(mainWidget);
 	
-	this->m_analyzeButton = new QToolButton(mainWidget);
-	this->m_analyzeButton->setDefaultAction(this->m_actions[ANALYZE]);
-	buttonsLayout->addWidget(this->m_analyzeButton, 0, Qt::AlignTop);
-	
 	auto addPatternButton = new QToolButton(mainWidget);
 	addPatternButton->setDefaultAction(this->m_actions[ADD_PATTERN]);
+	addPatternButton->setMinimumWidth(BUTTON_SIZE);
 	buttonsLayout->addWidget(addPatternButton, 0, Qt::AlignTop);
+	
+	auto remvovePatternButton = new QToolButton(mainWidget);
+	remvovePatternButton->setDefaultAction(this->m_actions[REMOVE_PATTERN]);
+	remvovePatternButton->setMinimumWidth(BUTTON_SIZE);
+	buttonsLayout->addWidget(remvovePatternButton, 0, Qt::AlignTop);
+	
+	buttonsLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	
+	this->m_analyzeButton = new QToolButton(mainWidget);
+	this->m_analyzeButton->setDefaultAction(this->m_actions[ANALYZE]);
+	this->m_analyzeButton->setMinimumWidth(BUTTON_SIZE);
+	this->m_analyzeButton->setMinimumHeight(this->m_analyzeButton->height() * 2);
+	buttonsLayout->addWidget(this->m_analyzeButton, 0, Qt::AlignBottom);
 	
 	this->m_verboseBox = new QCheckBox(tr("Verbose logging"), mainWidget);
 	connect(this->m_verboseBox, SIGNAL(clicked(bool)), SLOT(verbosity(bool)));
@@ -256,6 +276,10 @@ void crawler_qt::showAddPattern() {
 	this->m_addWindow->move(this->geometry().x() + cw, this->geometry().y() + ch);
 	this->m_addWindow->show();
 	this->m_addWindow->activateWindow();	
+}
+
+void crawler_qt::removePattern() {
+	qDeleteAll(this->m_searchList->selectedItems());
 }
 
 void crawler_qt::addPattern(const AddPatternWindow::Result &result) {
