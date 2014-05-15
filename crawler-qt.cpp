@@ -90,7 +90,7 @@ void crawler_qt::makeActions() {
 	
 	this->m_actions[QUIT] = new QAction(tr("Quit"), this);
 	this->m_actions[QUIT]->setShortcut(QString("Ctrl+Q"));
-	connect(this->m_actions[QUIT], SIGNAL(triggered()), SLOT(close()));
+	connect(this->m_actions[QUIT], SIGNAL(triggered()), QApplication::instance(), SLOT(quit()));
 	
 	this->m_actions[ANALYZE] = new QAction(tr("Anal&yze"), this);
 	this->m_actions[ANALYZE]->setShortcut(QString("Ctrl+Y"));
@@ -186,10 +186,12 @@ void crawler_qt::makeResultsWindow() {
 	this->m_resultsWindow->hide();
 	auto geom = this->geometry();
 	this->m_resultsWindow->setGeometry(geom);
+	this->m_resultsWindow->addAction(this->m_actions[QUIT]);
 }
 
 void crawler_qt::makeAddWindow() {
 	this->m_addWindow = new AddPatternWindow();
+	this->m_addWindow->addAction(this->m_actions[QUIT]);
 	connect(this->m_addWindow, SIGNAL(finished(AddPatternWindow::Result)), SLOT(addPattern(AddPatternWindow::Result)));
 	this->m_addWindow->hide();
 	this->m_addWindowSize = this->m_addWindow->size();
