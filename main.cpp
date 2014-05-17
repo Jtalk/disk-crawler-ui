@@ -21,10 +21,15 @@
 #include "base/Config.h"
 #include "base/Log.h"
 
+#include <clocale>
+
+#include <QtCore/QTextCodec>
 #include <QtGui/QApplication>
 
 int main(int argc, char **argv) {
-	QApplication app(argc, argv);
+	QApplication app(argc, argv);    
+	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 	crawler_qt foo;
 	Log logger;
 	Config config;

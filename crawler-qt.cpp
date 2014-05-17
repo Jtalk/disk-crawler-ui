@@ -23,6 +23,7 @@
 #include "SearchListWidgetItem.h"
 #include "NotificationWidget.h"
 #include "ResultsWindow.h"
+#include "EncodingsWindow.h"
 
 #include "base/Config.h"
 
@@ -62,6 +63,7 @@ crawler_qt::crawler_qt(): m_thread(nullptr) {
 	this->makeMain();
 	this->makeResultsWindow();
 	this->makeAddWindow();
+	this->makeEncodingsWindow();
 }
 
 crawler_qt::~crawler_qt()
@@ -70,6 +72,7 @@ crawler_qt::~crawler_qt()
 	delete this->m_thread;
 	delete this->m_resultsWindow;
 	delete this->m_addWindow;
+	delete this->m_encodingsWindow;
 }
 
 void crawler_qt::place() {
@@ -103,6 +106,10 @@ void crawler_qt::makeActions() {
 	this->m_actions[REMOVE_PATTERN] = new QAction(tr("&Remove"), this);
 	this->m_actions[REMOVE_PATTERN]->setShortcut(QString("Ctrl+R"));
 	connect(this->m_actions[REMOVE_PATTERN], SIGNAL(triggered()), SLOT(removePattern()));
+	
+	this->m_actions[SHOW_ENCODINGS] = new QAction(tr("&Encodings"), this);
+	this->m_actions[SHOW_ENCODINGS]->setShortcut(QString("Ctrl+E"));
+	connect(this->m_actions[SHOW_ENCODINGS], SIGNAL(triggered()), SLOT(showEncodings()));
 }
 
 void crawler_qt::makeMenu() {
@@ -152,6 +159,11 @@ void crawler_qt::makeMain() {
 	remvovePatternButton->setMinimumWidth(BUTTON_SIZE);
 	buttonsLayout->addWidget(remvovePatternButton, 0, Qt::AlignTop);
 	
+	auto encodingsButton = new QToolButton(mainWidget);
+	encodingsButton->setDefaultAction(this->m_actions[SHOW_ENCODINGS]);
+	encodingsButton->setMinimumWidth(BUTTON_SIZE);
+	buttonsLayout->addWidget(encodingsButton, 0, Qt::AlignTop);
+	
 	buttonsLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
 	
 	this->m_analyzeButton = new QToolButton(mainWidget);
@@ -198,10 +210,24 @@ void crawler_qt::makeAddWindow() {
 	this->m_addWindowSize.setHeight(1);
 }
 
+void crawler_qt::makeEncodingsWindow() {
+	this->m_encodingsWindow = new EncodingsWindow();
+	this->m_encodingsWindow->addAction(this->m_actions[QUIT]);
+	connect(this->m_encodingsWindow, SIGNAL(added()), SLOT(addEncodings()));
+	this->m_encodingsWindow->hide();
+	auto geom = this->geometry();
+	geom.adjust(200, 100, -200, -100);
+	this->m_encodingsWindow->setGeometry(geom);
+}
+
 void crawler_qt::showResult() {
 	this->m_resultsWindow->setResults(std::move(this->m_thread->patterns()), std::move(this->m_thread->found()));
 	this->m_resultsWindow->setWindowTitle(this->m_thread->device().name.c_str());
 	this->m_resultsWindow->show();
+}
+
+void crawler_qt::showEncodings() {
+	this->m_encodingsWindow->show();
 }
 
 void crawler_qt::inform(const QString &message) {
@@ -284,8 +310,20 @@ void crawler_qt::removePattern() {
 }
 
 void crawler_qt::addPattern(const AddPatternWindow::Result &result) {
-	auto item = new SearchListWidgetItem(result.pattern, this->m_searchList, byte_array_t((uint8_t*)result.pattern.toStdString().c_str()));
+	QByteArray tmp;
+	tmp.append(result.pattern);
+	byte_array_t array;
+	array.reserve(tmp.size());
+	for (const auto &_char : tmp) {
+		array.push_back((uint8_t)_char);
+	}
+	auto item = new SearchListWidgetItem(result.pattern, this->m_searchList, std::move(array));
 	this->m_searchList->addItem(item);
+}
+
+void crawler_qt::addEncodings() {
+	auto result = this->m_encodingsWindow->get();
+	this->m_thread->addEncodings(std::move(result));
 }
 
 #include "crawler-qt.moc"

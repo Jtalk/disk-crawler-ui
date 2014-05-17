@@ -1,5 +1,6 @@
 project(crawler-qt)
 cmake_minimum_required(VERSION 2.6)
+cmake_policy(SET CMP0015 NEW)
 find_package(Qt4 REQUIRED)
 find_package(LibArchive REQUIRED)
 
@@ -17,9 +18,9 @@ set (CMAKE_NM      "/usr/bin/llvm-nm")
 set (CMAKE_OBJDUMP "/usr/bin/llvm-objdump")
 
 include_directories(${QT_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR} ../crawler)
-link_directories( ../../crawler/build/base )
+link_directories( ../crawler/build/base )
 
-set(crawler-qt_SRCS  
+set(crawler-qt_SRCS 
 	crawler-qt.cpp 
 	devpick.cpp
 	main.cpp
@@ -30,6 +31,7 @@ set(crawler-qt_SRCS
 	HexWidget.cpp
 	SearchResultItem.cpp
 	AddPatternWindow.cpp
+	EncodingsWindow.cpp  
 )
 qt4_automoc(${crawler-qt_SRCS})
 add_executable(crawler-qt ${crawler-qt_SRCS})

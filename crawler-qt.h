@@ -38,6 +38,7 @@ class AddPatternWindow;
 class CrawlerThread;
 class NotificationWidget;
 class ResultsWindow;
+class EncodingsWindow;
 
 class crawler_qt : public QMainWindow {
 	Q_OBJECT
@@ -48,6 +49,7 @@ private:
 		ANALYZE,
 		ADD_PATTERN,
 		REMOVE_PATTERN,
+		SHOW_ENCODINGS,
 		
 		MAX_ACTION
 	};
@@ -66,6 +68,7 @@ private:
 	
 	ResultsWindow *m_resultsWindow;
 	AddPatternWindow *m_addWindow;
+	EncodingsWindow *m_encodingsWindow;
 	QSize m_addWindowSize;
 	
 	CrawlerThread *m_thread;
@@ -75,6 +78,7 @@ private:
 	void makeMain();
 	void makeResultsWindow();
 	void makeAddWindow();
+	void makeEncodingsWindow();
 	void place();
 	
 	void showResult();
@@ -92,8 +96,10 @@ public slots:
 	void onThreadError(QString error);
 	void verbosity(bool verbose);
 	void showAddPattern();
+	void showEncodings();
 	void removePattern();
 	void addPattern(const AddPatternWindow::Result &result);
+	void addEncodings();
 	
 public:
 	crawler_qt();

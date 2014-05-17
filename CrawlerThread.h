@@ -32,6 +32,7 @@ public:
 	
 	void addDevice(const DeviceInfo &info);
 	void addPatterns(search_terms_t &&terms);
+	void addEncodings(encodings_t &&enc);
 	SignatureWalker::results_t &found();
 	search_terms_t &patterns();
 	const DeviceInfo &device() const;
@@ -44,6 +45,7 @@ signals:
 private:
 	SignatureWalker::results_t m_results;
 	search_terms_t m_patterns;
+	encodings_t m_encodings;
 	
 	DeviceInfo m_device;
 	bool m_initialized;
