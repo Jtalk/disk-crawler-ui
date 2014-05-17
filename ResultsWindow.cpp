@@ -111,7 +111,7 @@ void ResultsWindow::formList() {
 			reader->seekg(startp);
 			auto read = reader->read(result, to_read);
 			result.shrink(read);
-			auto item = new SearchResultItem(this->m_list, QString((char*)this->m_patterns[offset.pattern_n].c_str()), std::move(result), offset.offset, reader);
+			auto item = new SearchResultItem(this->m_list, QString((char*)this->m_patterns[offset.pattern_n].pattern.c_str()), std::move(result), offset.offset, reader);
 			this->m_list->addItem(item);
 		}
 	}

@@ -36,3 +36,19 @@ SearchResultItem::SearchResultItem(QListWidget *view, const QString &searchPatte
 {}
 
 #include "SearchResultItem.moc"
+
+/*
+Dbg
+real    0m12.422s
+user    0m11.236s
+sys     0m0.294s
+
+Rel
+real    0m1.799s
+user    0m0.714s
+sys     0m0.278s
+
+
+
+
+*/

@@ -242,7 +242,7 @@ void crawler_qt::setSearchTerms() {
 	search_terms_t terms;
 	for (int i = 0; i < this->m_searchList->count(); i++) {
 		auto item = (SearchListWidgetItem*)this->m_searchList->item(i);
-		terms.push_back(item->pattern);
+		terms.push_back({item->pattern, {}});
 	}
 	this->m_thread->addPatterns(std::move(terms));	
 }
