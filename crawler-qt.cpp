@@ -195,7 +195,6 @@ void crawler_qt::makeAddWindow() {
 	connect(this->m_addWindow, SIGNAL(finished(AddPatternWindow::Result)), SLOT(addPattern(AddPatternWindow::Result)));
 	this->m_addWindow->hide();
 	this->m_addWindowSize = this->m_addWindow->size();
-	this->m_addWindowSize.setWidth(this->m_addWindowSize.width() * 1.5);
 	this->m_addWindowSize.setHeight(1);
 }
 

@@ -103,6 +103,7 @@ void CrawlerThread::find() {
 	}
 	
 	auto results = plain->find(this->m_patterns);
+	logger()->debug("Found %u items", results.size());
 	SignatureWalker::merge(this->m_results, results);
 	++this->completeWalkersCount;
 	if (checker != nullptr) {
