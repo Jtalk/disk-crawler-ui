@@ -24,15 +24,33 @@
 #include <clocale>
 
 #include <QtCore/QTextCodec>
+#include <QtCore/QTranslator>
+#include <QtCore/QLocale>
 #include <QtGui/QApplication>
 
-int main(int argc, char **argv) {
-	QApplication app(argc, argv);    
+QTranslator translator;
+	
+void translate(QApplication &app) {
+	translator.load("crawler-qt-" + QLocale::system().name());
+	app.installTranslator(&translator);
+}
+
+void encode() {
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-	crawler_qt foo;
+}
+
+int main(int argc, char **argv) {
+	QApplication app(argc, argv); 
+	encode();
+	translate();
+	
 	Log logger;
 	Config config;
+	
+	crawler_qt foo;
+	
 	foo.show();
+	
 	return app.exec();
 }
