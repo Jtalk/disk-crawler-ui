@@ -73,6 +73,8 @@ EncodingsWindow::EncodingsWindow(): QWidget() {
 	
 	
 	auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+	buttons->button(QDialogButtonBox::Ok)->setText(tr("Ok"));
+	buttons->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
 	connect(buttons, SIGNAL(accepted()), SLOT(complete()));
 	connect(buttons, SIGNAL(rejected()), SLOT(reject()));
 	

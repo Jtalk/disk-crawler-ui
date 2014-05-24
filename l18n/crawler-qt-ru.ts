@@ -4,9 +4,19 @@
 <context>
     <name>AddPatternWindow</name>
     <message>
-        <location filename="../AddPatternWindow.cpp" line="34"/>
+        <location filename="../AddPatternWindow.cpp" line="35"/>
         <source>Search term:</source>
         <translation>Поисковая фраза:</translation>
+    </message>
+    <message>
+        <location filename="../AddPatternWindow.cpp" line="38"/>
+        <source>Ok</source>
+        <translation>Ок</translation>
+    </message>
+    <message>
+        <location filename="../AddPatternWindow.cpp" line="39"/>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
     <message>
         <source>Encoding:</source>
@@ -47,6 +57,16 @@
         <location filename="../EncodingsWindow.cpp" line="64"/>
         <source>Remove</source>
         <translation>Удалить</translation>
+    </message>
+    <message>
+        <location filename="../EncodingsWindow.cpp" line="76"/>
+        <source>Ok</source>
+        <translation>Ок</translation>
+    </message>
+    <message>
+        <location filename="../EncodingsWindow.cpp" line="77"/>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
     </message>
 </context>
 <context>

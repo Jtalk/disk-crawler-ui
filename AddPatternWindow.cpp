@@ -23,6 +23,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
+#include <QtGui/QPushButton>
 
 static const QString encodings[] = {
 	"UTF-8",
@@ -34,6 +35,8 @@ AddPatternWindow::AddPatternWindow(): QWidget() {
 	auto inputLabel = new QLabel(tr("Search term:"), this);
 	this->m_input = new QLineEdit(this);
 	auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+	buttons->button(QDialogButtonBox::Ok)->setText(tr("Ok"));
+	buttons->button(QDialogButtonBox::Cancel)->setText(tr("Cancel"));
 	
 	auto mainLayout = new QVBoxLayout(this);
 	auto buttonsLayout = new QHBoxLayout(this);
