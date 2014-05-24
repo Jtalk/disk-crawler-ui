@@ -109,14 +109,15 @@ void CrawlerThread::find() {
 	Options opts;
 	opts.encodings = std::move(this->m_encodings);
 	opts.filename = this->m_device.name;
-	opts.to_find = this->m_patterns;
+	opts.to_find = std::move(this->m_patterns);
 	this->m_encodings.clear();
-	this->m_patterns.clear();
+	//this->m_patterns.clear();
 	
 	utility::encode(opts);
 	
 	auto results = plain->find(opts.to_find);
 	SignatureWalker::merge(this->m_results, results);
+	results.clear();
 	++this->completeWalkersCount;
 	if (checker != nullptr) {
 		results = checker->find(opts.to_find);
@@ -125,6 +126,8 @@ void CrawlerThread::find() {
 	}
 	
 	logger()->debug("Found %u items", this->m_results.size());
+	
+	this->m_patterns = std::move(opts.to_find);
 	
 	emit progress(100);
 	emit endsearch();

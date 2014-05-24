@@ -20,7 +20,7 @@
 
 #include <cmath>
 
-QString format(const Buffer &text, size_t startOffset) {
+QString format(const Buffer &text_raw, size_t startOffset) {
 	static constexpr uint8_t ITEMS_PER_ROW = 16;
 	static const char *PLACEHOLDER_HEX = "  ";
 	static const char *PLACEHOLDER_VIEW = " ";
@@ -30,8 +30,15 @@ QString format(const Buffer &text, size_t startOffset) {
 	QStringList hexes;
 	QStringList visuals;
 	
+	QString text = QString::fromUtf8((const char*)text_raw.cbegin(), text_raw.size());
+	int text_index = 0;
+	
+	logger()->debug("UTF string %s size is %u", text_raw.cbegin(), text.size());
+	
 	size_t startAddress = ITEMS_PER_ROW * (startOffset / ITEMS_PER_ROW);
-	size_t lastAddress = ITEMS_PER_ROW * ceil(float(startOffset + text.size()) / ITEMS_PER_ROW);
+	size_t lastAddress = ITEMS_PER_ROW * ceil(float(startOffset + text_raw.size()) / ITEMS_PER_ROW);
+	
+	bool multibyte = false;
 	
 	for (size_t addr = startAddress; addr <= lastAddress; addr+= ITEMS_PER_ROW) {
 		QString straddr = "0x" + QString::number(addr, 16).rightJustified(ADDRESS_SIZE, '0');
@@ -42,19 +49,25 @@ QString format(const Buffer &text, size_t startOffset) {
 		for (size_t charidx = addr; charidx < addr + ITEMS_PER_ROW; charidx++) {
 			QString item_hex;
 			QString item_view;
-			if (charidx < startOffset or charidx >= startOffset + text.size()) {
+			if (charidx < startOffset or charidx >= startOffset + text_raw.size() or text_index >= text.size()) {
 				item_hex = PLACEHOLDER_HEX;
-				item_view = PLACEHOLDER_VIEW;
 			} else {
 				size_t offset = charidx - startOffset;
-				item_hex = QString::number(text.cbegin()[offset], 16).rightJustified(2, '0');
-				QChar value(text.cbegin()[offset]);
-				if (value.isSpace() or value.category() == QChar::Other_Format) {
-					value = ' ';
-				} else if (not value.isDigit() and not value.isLetter() and not value.isPunct() and value != ' ') {
-					value = '.';
+				auto raw_byte = text_raw.cbegin()[offset];
+				item_hex = QString::number(raw_byte, 16).rightJustified(2, '0');
+				QChar value = text.at(text_index);
+				if (multibyte or value.unicode() >> 8 == 0) {
+					multibyte = false;
+					++text_index;
+					if (not value.isPrint()) {
+						item_view = ' ';
+					} else {
+						item_view = value;
+					}
+				} else {
+					multibyte = true;
+					item_view = PLACEHOLDER_VIEW;
 				}
-				item_view = value;
 			}
 			if (not hex.isEmpty()) {
 				hex += QLatin1String(" ");
@@ -62,8 +75,9 @@ QString format(const Buffer &text, size_t startOffset) {
 			hex += item_hex;
 			visual += item_view;
 		}
+		
 		hexes << hex;
-		visuals << visual;		
+		visuals << visual;
 	}
 	
 	QString result;

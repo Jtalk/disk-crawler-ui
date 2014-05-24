@@ -94,6 +94,7 @@ void ResultsWindow::clear() {
 		delete result.first;
 	}
 	this->m_results.clear();
+	this->m_hex->clear();
 }
 
 void ResultsWindow::formList() {
@@ -103,15 +104,33 @@ void ResultsWindow::formList() {
 		reader->reset();
 		for (const auto &offset : result.second) {
 			size_t to_read = VIEW_SIZE * 3;
-			Buffer result(to_read);
+			Buffer buffer(to_read + 4);
 			size_t startp = 0;
 			if (offset.offset > to_read / 2) {
 				startp = offset.offset - to_read / 2;
 			}
 			reader->seekg(startp);
-			auto read = reader->read(result, to_read);
-			result.shrink(read);
-			auto item = new SearchResultItem(this->m_list, QString((char*)this->m_patterns[offset.pattern_n].pattern.c_str()), std::move(result), offset.offset, reader);
+			auto read = reader->read(buffer, to_read);
+			buffer.shrink(read);
+			buffer.begin()[read] = 0;
+
+			bool encoded = utility::sanitize(buffer, this->m_patterns[offset.pattern_n].encoding);
+			if (not encoded) {
+				logger()->debug("Encodings for pattern %u mismatches: %s for current and %s for environment", 
+					offset.pattern_n, this->m_patterns[offset.pattern_n].encoding.c_str(), this->m_patterns.crbegin()->encoding.c_str());
+				buffer.clear();
+				std::generate(buffer.begin(), buffer.end(), [] () {return (uint8_t)'.';});
+			}
+			
+			Buffer pattern(this->m_patterns[offset.pattern_n].pattern.size() + 1);
+			pattern.capture(this->m_patterns[offset.pattern_n].pattern.c_str(), this->m_patterns[offset.pattern_n].pattern.size() + 1);
+			encoded = utility::sanitize(pattern, this->m_patterns[offset.pattern_n].encoding, '.');
+			if (not encoded) {
+				logger()->error("Encodings for pattern %u mismatches: %s for current and %s for environment", 
+					offset.pattern_n, this->m_patterns[offset.pattern_n].encoding.c_str(), this->m_patterns.crbegin()->encoding.c_str());
+			}
+			
+			auto item = new SearchResultItem(this->m_list, QString((const char*)pattern.cbegin()), std::move(buffer), offset.offset, reader);
 			this->m_list->addItem(item);
 		}
 	}
