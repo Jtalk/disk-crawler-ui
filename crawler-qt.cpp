@@ -138,7 +138,7 @@ void crawler_qt::makeMain() {
 	this->m_devicesListView = new QComboBox(mainWidget);
 	this->m_devicesListInfo = devpick();
 	for (auto &device : this->m_devicesListInfo) {
-		QString content = QLatin1String(device.name.c_str()) + ", size: " + humanReadable(device.size) + ", " + QLatin1String(device.file_system.c_str());
+		QString content = QLatin1String(device.name.c_str()) + ", " + tr("size") + ": " + humanReadable(device.size) + ", " + QLatin1String(device.file_system.c_str());
 		this->m_devicesListView->addItem(content);
 	}
 	layout->addWidget(this->m_devicesListView);

@@ -23,7 +23,6 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
-#include <QtGui/QComboBox>
 
 static const QString encodings[] = {
 	"UTF-8",
@@ -36,21 +35,12 @@ AddPatternWindow::AddPatternWindow(): QWidget() {
 	this->m_input = new QLineEdit(this);
 	auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
 	
-	auto encodingLabel = new QLabel(tr("Encoding:"), this);
-	this->m_encoding = new QComboBox(this);
-	this->m_encoding->setEditable(true);
-	for (const auto &encoding : encodings) {
-		this->m_encoding->addItem(encoding);
-	}
-	
 	auto mainLayout = new QVBoxLayout(this);
 	auto buttonsLayout = new QHBoxLayout(this);
 	
 	buttonsLayout->addWidget(buttons, 0, Qt::AlignRight);
 	mainLayout->addWidget(inputLabel);
 	mainLayout->addWidget(this->m_input);
-	mainLayout->addWidget(encodingLabel);
-	mainLayout->addWidget(this->m_encoding);
 	mainLayout->addItem(buttonsLayout);
 	
 	connect(buttons, SIGNAL(accepted()), SLOT(complete()));

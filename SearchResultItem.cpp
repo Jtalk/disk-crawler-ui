@@ -27,28 +27,12 @@ static QString readerInfo(const ByteReader *reader) {
 	if (dynamic_cast<const PlainFileStream*>(reader) != nullptr) {
 		return "";
 	} else {
-		return QLatin1String(" in container at 0x") + QString::number(reader->start_offset());
+		return QLatin1String(" ") + QObject::tr("in container at") + " 0x" + QString::number(reader->start_offset());
 	}
 }
 
 SearchResultItem::SearchResultItem(QListWidget *view, const QString &searchPattern, Buffer &&raw, size_t offset, const ByteReader *reader): 
-	QListWidgetItem(searchPattern + " at 0x" + QString::number(offset, 16) + readerInfo(reader), view), array(std::move(raw)), offset(offset)
+	QListWidgetItem(searchPattern + " " + QObject::tr("at") + " 0x" + QString::number(offset, 16) + readerInfo(reader), view), array(std::move(raw)), offset(offset)
 {}
 
 #include "SearchResultItem.moc"
-
-/*
-Dbg
-real    0m12.422s
-user    0m11.236s
-sys     0m0.294s
-
-Rel
-real    0m1.799s
-user    0m0.714s
-sys     0m0.278s
-
-
-
-
-*/

@@ -43,7 +43,7 @@ void encode() {
 int main(int argc, char **argv) {
 	QApplication app(argc, argv); 
 	encode();
-	translate();
+	translate(app);
 	
 	Log logger;
 	Config config;

@@ -21,7 +21,6 @@
 #include <QWidget>
 
 class QLineEdit;
-class QComboBox;
 
 class AddPatternWindow : public QWidget {
 	Q_OBJECT
@@ -39,7 +38,6 @@ public:
 	
 private:
 	QLineEdit *m_input;
-	QComboBox *m_encoding;
 	
 private slots:
 	void complete();
